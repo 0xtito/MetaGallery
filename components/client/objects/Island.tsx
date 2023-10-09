@@ -21,28 +21,28 @@ type LandRefType = {
   doorRef: React.RefObject<THREE.Group<THREE.Object3DEventMap>>;
 };
 
-function Land(
-  {
-    position,
-    rotation,
-    fullDoorRotation,
-    doorRotation,
-    fullDoorPosition,
-  }: {
-    position: THREE.Vector3;
-    rotation: THREE.Euler;
-    fullDoorRotation: THREE.Euler;
-    doorRotation: THREE.Euler;
-    fullDoorPosition: THREE.Vector3;
-  },
-  // ref: React.Ref<THREE.Mesh>
-  // ref: React.ForwardedRef<LandRefType>
-  ref: React.ForwardedRef<THREE.Group>
-) {
+function Island({
+  position,
+  rotation,
+  fullDoorRotation,
+  doorRotation,
+  fullDoorPosition,
+}: {
+  position: THREE.Vector3;
+  rotation: THREE.Euler;
+  fullDoorRotation: THREE.Euler;
+  doorRotation: THREE.Euler;
+  fullDoorPosition: THREE.Vector3;
+}) {
   const [_doorRotation, setDoorRotation] = React.useState<THREE.Euler>(
     new THREE.Euler(0, 0, 0)
   );
   const [hoveringDoor, setHoveringDoor] = React.useState<boolean>(false);
+  const initialRotation = React.useRef<THREE.Euler>(
+    new THREE.Euler(0, -1.6, 0)
+  );
+
+  const islandRef = React.useRef<THREE.Group>(null!);
 
   useGLTF.preload("/assets/land_final.glb");
   const model = useGLTF("/assets/land_final.glb");
@@ -67,15 +67,18 @@ function Land(
     setHoveringDoor(false);
   };
 
-  useFrame((state, delta) => {
-    // console.log(data);
+  // console.log(ref);
 
-    if (hoveringDoor && _doorRotation.y > -0.35)
+  useFrame((state, delta) => {
+    const xMouse = state.mouse.x * 2;
+    const yMouse = -state.mouse.y * 2;
+
+    if (hoveringDoor && _doorRotation.y > -0.45)
       setDoorRotation(
         (curValue) =>
           new THREE.Euler(
             0,
-            curValue.y - delta < -0.35 ? -0.35 : curValue.y - delta,
+            curValue.y - delta < -0.45 ? -0.45 : curValue.y - delta,
             0
           )
       );
@@ -85,12 +88,20 @@ function Land(
         (curValue) =>
           new THREE.Euler(0, curValue.y + delta > 0 ? 0 : curValue.y + delta, 0)
       );
+
+    // console.log(ref.current);
+
+    if (islandRef.current) {
+      islandRef.current.rotation.x = initialRotation.current.x + yMouse * 0.02;
+      islandRef.current.rotation.y = initialRotation.current.y + xMouse * 0.02;
+    }
   });
 
   return (
     <>
       <group
-        ref={ref}
+        // ref={ref}
+        ref={islandRef}
         name="completeLand"
         rotation={new THREE.Euler(0, rotation.y, 0)}
         position={position}
@@ -143,4 +154,4 @@ function Land(
   );
 }
 
-export default React.memo(React.forwardRef(Land));
+export default React.memo(Island);
