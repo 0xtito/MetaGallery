@@ -2,13 +2,10 @@ import React, { Ref } from "react";
 import { useFrame, useThree, ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
 // @ts-ignore
-import fragment from "@/shaders/FloatingContainer/fragment.glsl"; // eslint-disable-line
+import fragment from "@/shaders/FloatingContainer/fragment.glsl";
 // @ts-ignore
-import vertex from "@/shaders/FloatingContainer/vertex.glsl"; // eslint-disable-line
-import { ScriptProps } from "next/script";
-import { Center, Html, RoundedBox, Text } from "@react-three/drei";
-
-import { wrapText } from "@/utils";
+import vertex from "@/shaders/FloatingContainer/vertex.glsl";
+import { RoundedBox } from "@react-three/drei";
 
 interface FloatingContainerProps {
   position: THREE.Vector3;
