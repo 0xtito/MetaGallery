@@ -55,9 +55,9 @@ function Scene() {
     perfVisible,
     position,
     rotation,
+    fullDoorRotation,
     doorRotation,
-    doorPosition,
-    hingePosition,
+    fullDoorPosition,
   } = useControls({
     perfVisible: true,
     position: {
@@ -76,6 +76,22 @@ function Scene() {
       },
       step: 0.05,
     },
+    fullDoorPosition: {
+      value: {
+        x: -4.35,
+        y: 1.4,
+        z: -0.2,
+      },
+      step: 0.05,
+    },
+    fullDoorRotation: {
+      value: {
+        x: 0,
+        y: 1.57,
+        z: 0,
+      },
+      step: 0.005,
+    },
     doorRotation: {
       value: {
         x: 0,
@@ -83,22 +99,6 @@ function Scene() {
         z: 0,
       },
       step: 0.05,
-    },
-    doorPosition: {
-      value: {
-        x: -0.4,
-        y: -2,
-        z: -11.1,
-      },
-      step: 0.1,
-    },
-    hingePosition: {
-      value: {
-        x: 0,
-        y: 0,
-        z: -11.1,
-      },
-      step: 0.1,
     },
   });
 
@@ -109,7 +109,7 @@ function Scene() {
   const handleWheel = (event: React.WheelEvent) => {
     // console.log("hi");
     // console.log(event.deltaY);
-    console.log(cameraRef.current.position);
+    // console.log(cameraRef.current.position);s
     cameraRef.current.position.z += event.deltaY * 0.02;
     setCameraPosition((curValues) => ({
       ...curValues,
@@ -188,14 +188,16 @@ function Scene() {
     }
   };
 
+  // useFrame((state, delta) => {});
+
   return (
     <div
       className="z-10 top-0 left-0 h-full w-full"
       // onWheel={handleWheel}
-      onPointerMove={handleMouseMove}
+      // onPointerMove={handleMouseMove}
       onWheel={handleWheel}
     >
-      <Canvas flat>
+      <Canvas onPointerMove={handleMouseMove} flat>
         {/* Debug */}
         <Perf position="top-left" visible={perfVisible} />
 
@@ -261,21 +263,21 @@ function Scene() {
             <Land
               position={new THREE.Vector3(position.x, position.y, position.z)}
               rotation={new THREE.Euler(rotation.x, rotation.y, rotation.z)}
+              fullDoorRotation={
+                new THREE.Euler(
+                  fullDoorRotation.x,
+                  fullDoorRotation.y,
+                  fullDoorRotation.z
+                )
+              }
               doorRotation={
                 new THREE.Euler(doorRotation.x, doorRotation.y, doorRotation.z)
               }
-              doorPosition={
+              fullDoorPosition={
                 new THREE.Vector3(
-                  doorPosition.x,
-                  doorPosition.y,
-                  doorPosition.z
-                )
-              }
-              hingePosition={
-                new THREE.Vector3(
-                  hingePosition.x,
-                  hingePosition.y,
-                  hingePosition.z
+                  fullDoorPosition.x,
+                  fullDoorPosition.y,
+                  fullDoorPosition.z
                 )
               }
               ref={landRef}
