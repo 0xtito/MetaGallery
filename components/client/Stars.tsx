@@ -5,6 +5,11 @@ import { useScroll } from "@react-three/drei";
 import { useRef, useState } from "react";
 import * as THREE from "three";
 
+// @ts-ignore
+import fragment from "@/shaders/stars/fragment.glsl";
+// @ts-ignore
+import vertex from "@/shaders/stars/vertex.glsl";
+
 import type { PropsWithoutRef, Ref } from "react";
 
 interface StarsProps
@@ -20,17 +25,24 @@ function Stars({ ...rest }: StarsProps, ref: Ref<THREE.PerspectiveCamera>) {
     console.log(scroll);
   }, [scroll]);
 
-  const particlesCount = 10000;
-  const particlePositions = new Float32Array(particlesCount * 3);
-  const colors = new Float32Array(particlesCount * 3);
+  const innerStars = 2000;
+  const outerStars = 8000;
+  const totalStars = innerStars + outerStars;
 
-  for (let i = 0; i < particlesCount * 3; i++) {
+  // const innerStarsPositions = new Float32Array(innerStars * 3);
+  // const outerStarsPositions = new Float32Array(outerStars * 3);
+  // const totalStarsPositions = new Float32Array(totalStars * 3);
+  // const scaleArr = new Float32Array(totalStars);
+
+  const particlePositions = new Float32Array(totalStars * 3);
+  // const colorsArr = new Float32Array(totalStars * 3);
+  for (let i = 0; i < totalStars * 3; i++) {
     const i3 = i * 3;
 
-    particlePositions[i3] = (Math.random() - 0.5) * 1500;
-    particlePositions[i3 + 1] = (Math.random() - 0.5) * 1500;
-    particlePositions[i3 + 2] = (Math.random() - 0.8) * 1500;
-    colors[i] = Math.random();
+    particlePositions[i3] = (Math.random() - 0.5) * 1250;
+    particlePositions[i3 + 1] = (Math.random() - 0.5) * 1250;
+    particlePositions[i3 + 2] = (Math.random() - 0.8) * 1250;
+    // colorsArr[i] = Math.random();
   }
 
   useFrame(() => {
@@ -40,13 +52,70 @@ function Stars({ ...rest }: StarsProps, ref: Ref<THREE.PerspectiveCamera>) {
     }
   });
 
+  // const starsMaterial = new THREE.ShaderMaterial({
+  //   uniforms: {
+  //     uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
+  //     uSize: { value: 200 },
+  //   },
+  //   vertexShader: ``,
+  //   fragmentShader: ``,
+  //   transparent: true,
+  //   blending: THREE.AdditiveBlending,
+  //   depthWrite: false,
+  // });
+
   return (
     <group>
       <points ref={starsRef}>
+        {/* <bufferGeometry>
+          <bufferAttribute
+            attach={"attributes-position"}
+            count={innerStars}
+            itemSize={3}
+            array={innerStarsPositions}
+          />
+        </bufferGeometry>
         <bufferGeometry>
           <bufferAttribute
             attach={"attributes-position"}
-            count={particlesCount}
+            count={outerStars}
+            itemSize={3}
+            array={outerStarsPositions}
+          />
+        </bufferGeometry>
+        <shaderMaterial
+          uniforms={{
+            uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
+            // uSize: { value: 200 },
+            time: { value: 0 },
+            resolution: {
+              value: new THREE.Vector2(window.innerWidth, window.innerHeight),
+            },
+          }}
+          vertexShader={vertex}
+          fragmentShader={fragment}
+          depthWrite
+          transparent
+          blending={THREE.AdditiveBlending}
+        /> */}
+        {/* <bufferGeometry>
+          <bufferAttribute
+            attach={"attributes-position"}
+            count={innerStars}
+            itemSize={3}
+            array={particlePositions}
+          /> */}
+        {/* <bufferAttribute
+            attach={"attributes-color"}
+            count={colorsArr.length / 3}
+            itemSize={3}
+            array={colorsArr}
+          /> */}
+        {/* </bufferGeometry> */}
+        <bufferGeometry>
+          <bufferAttribute
+            attach={"attributes-position"}
+            count={totalStars}
             itemSize={3}
             array={particlePositions}
           />

@@ -1,14 +1,26 @@
 "use client";
-import { useGLTF, useTexture, Center } from "@react-three/drei";
+import {
+  useGLTF,
+  useTexture,
+  Center,
+  useHelper,
+  SpotLight,
+  useDepthBuffer,
+  useProgress,
+} from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { useControls } from "leva";
-
 import * as THREE from "three";
+import { DirectionalLightHelper } from "three";
+
+import { SpotLightHelper } from "three";
+
 // @ts-ignore
 import fragment from "@/shaders/FloatingContainer/fragment.glsl";
 // @ts-ignore
 import vertex from "@/shaders/FloatingContainer/vertex.glsl";
+import { LoadingContext } from "../landingPage/LoadingProvider";
 
 type LandRefType = {
   landRef: React.RefObject<
@@ -27,13 +39,23 @@ function Island({
   fullDoorRotation,
   doorRotation,
   fullDoorPosition,
+  lightPosition,
+  lightScale,
+  lightRotation,
+  targetPosition,
 }: {
   position: THREE.Vector3;
   rotation: THREE.Euler;
   fullDoorRotation: THREE.Euler;
   doorRotation: THREE.Euler;
   fullDoorPosition: THREE.Vector3;
+  lightPosition: THREE.Vector3;
+  lightScale: THREE.Vector3;
+  lightRotation: THREE.Euler;
+  targetPosition?: THREE.Vector3;
 }) {
+  const { land, door, landTexture, doorTexture, loaded, total } =
+    useContext(LoadingContext);
   const [_doorRotation, setDoorRotation] = React.useState<THREE.Euler>(
     new THREE.Euler(0, 0, 0)
   );
@@ -44,30 +66,15 @@ function Island({
 
   const islandRef = React.useRef<THREE.Group>(null!);
 
-  useGLTF.preload("/assets/land_final.glb");
-  const model = useGLTF("/assets/land_final.glb");
-  const bakedTexture = useTexture("/assets/bake_final.jpg");
-  const doorTexture = useTexture("/assets/onlyDoorBaked.jpg");
+  console.log("hi");
+  console.log({ loaded, total });
 
-  useGLTF.preload("/assets/door_final.glb");
-  const door = useGLTF("/assets/door_final.glb");
+  // const depthBuffer = useDepthBuffer({ frames: 1 });
 
   // @ts-ignore
-  const landNodes = model.nodes;
+  const landNodes = land.nodes;
   // @ts-ignore
   const doorNodes = door.nodes;
-
-  const slightlyOpenDoor = () => {
-    console.log("slightlyOpenDoor");
-    setHoveringDoor(true);
-  };
-
-  const closeDoor = () => {
-    console.log("closeDoor");
-    setHoveringDoor(false);
-  };
-
-  // console.log(ref);
 
   useFrame((state, delta) => {
     const xMouse = state.mouse.x * 2;
@@ -89,8 +96,6 @@ function Island({
           new THREE.Euler(0, curValue.y + delta > 0 ? 0 : curValue.y + delta, 0)
       );
 
-    // console.log(ref.current);
-
     if (islandRef.current) {
       islandRef.current.rotation.x = initialRotation.current.x + yMouse * 0.02;
       islandRef.current.rotation.y = initialRotation.current.y + xMouse * 0.02;
@@ -100,14 +105,13 @@ function Island({
   return (
     <>
       <group
-        // ref={ref}
         ref={islandRef}
         name="completeLand"
         rotation={new THREE.Euler(0, rotation.y, 0)}
         position={position}
       >
         <mesh geometry={landNodes.baked.geometry}>
-          <meshBasicMaterial map={bakedTexture} map-flipY={false} />
+          <meshBasicMaterial map={landTexture} map-flipY={false} />
         </mesh>
 
         <group
@@ -125,8 +129,8 @@ function Island({
 
           <group
             name="doorWithHingeAtOrigin"
-            onPointerEnter={slightlyOpenDoor}
-            onPointerLeave={closeDoor}
+            onPointerEnter={() => setHoveringDoor(true)}
+            onPointerLeave={() => setHoveringDoor(false)}
           >
             <group name="doorRotatedAroundHinge">
               <mesh
@@ -149,6 +153,17 @@ function Island({
             </group>
           </group>
         </group>
+        {/* <SpotLight
+          position={new THREE.Vector3(0, 10, 0)} // Adjust this position so it's inside the door.
+          target={islandRef.current} // Adjust the target so it's pointing outwards from the door.
+          color={0xffffff}
+          intensity={1}
+          distance={2}
+          angle={Math.PI / 15}
+          penumbra={0.2}
+          decay={2}
+          depthBuffer={depthBuffer}
+        /> */}
       </group>
     </>
   );

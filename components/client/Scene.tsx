@@ -6,8 +6,9 @@ import {
   Text,
   PerspectiveCamera,
   ScrollControls,
-  useScroll,
   Scroll,
+  OrbitControls,
+  useProgress,
 } from "@react-three/drei";
 import * as THREE from "three";
 
@@ -20,7 +21,10 @@ import Stars from "./Stars";
 import { wrapText } from "@/utils";
 import Camera from "./Camera";
 import ScrollHandler from "./ScrollHandler";
-import Land from "./objects/Land";
+import Island from "./objects/Island";
+import LoadingProvider from "./landingPage/LoadingProvider";
+import LoadingScreen from "./landingPage/LoadingScreen";
+import LoadingButton from "./landingPage/LoadingButton";
 
 type LandRefType = {
   landRef: React.MutableRefObject<
@@ -34,16 +38,11 @@ type LandRefType = {
 };
 
 function Scene() {
+  const [showLoadingScreen, setShowLoadingScreen] = React.useState(true);
   const cameraRef = React.useRef<THREE.PerspectiveCamera>(null!);
 
   const floatingContainer1Ref = React.useRef<THREE.Mesh>(null!);
   const floatingContainer2Ref = React.useRef<THREE.Mesh>(null!);
-  const landRef = React.useRef<THREE.Group>(null!);
-  const doorRef = React.useRef<THREE.Group>(null!);
-  // const completeLandRef = useRef<LandRefType>({
-  //   landRef,
-  //   doorRef,
-  // });
 
   const [cameraPosition, setCameraPosition] = React.useState({
     x: 0,
@@ -58,8 +57,12 @@ function Scene() {
     fullDoorRotation,
     doorRotation,
     fullDoorPosition,
+    lightPosition,
+    lightScale,
+    lightRotation,
+    targetPosition,
   } = useControls({
-    perfVisible: true,
+    perfVisible: false,
     position: {
       value: {
         x: -0.4,
@@ -93,6 +96,38 @@ function Scene() {
       step: 0.005,
     },
     doorRotation: {
+      value: {
+        x: 0,
+        y: 0,
+        z: 0,
+      },
+      step: 0.05,
+    },
+    lightPosition: {
+      value: {
+        x: 0,
+        y: 0,
+        z: 0,
+      },
+      step: 0.05,
+    },
+    lightScale: {
+      value: {
+        x: 1,
+        y: 1,
+        z: 1,
+      },
+      step: 0.05,
+    },
+    lightRotation: {
+      value: {
+        x: 0,
+        y: 0,
+        z: 0,
+      },
+      step: 0.05,
+    },
+    targetPosition: {
       value: {
         x: 0,
         y: 0,
@@ -177,54 +212,58 @@ function Scene() {
       floatingContainer2Ref.current.rotation.x = y * 0.3;
       floatingContainer2Ref.current.rotation.y = x * 0.3;
     }
-
-    if (landRef.current) {
-      landRef.current.rotation.x = initialRotation.current.x + y * 0.05;
-      landRef.current.rotation.y = initialRotation.current.y + x * 0.05;
-    }
-    if (doorRef.current) {
-      doorRef.current.rotation.x = initialRotation.current.x + y * 0.05;
-      doorRef.current.rotation.y = initialRotation.current.y + x * 0.05;
-    }
   };
 
-  // useFrame((state, delta) => {});
-
   return (
-    <div
-      className="z-10 top-0 left-0 h-full w-full"
-      // onWheel={handleWheel}
-      // onPointerMove={handleMouseMove}
-      onWheel={handleWheel}
-    >
-      <Canvas onPointerMove={handleMouseMove} flat>
-        {/* Debug */}
-        <Perf position="top-left" visible={perfVisible} />
-
-        <ScrollControls pages={3}>
-          <ScrollHandler
-            stops={stops}
-            currentStop={currentStop}
-            ref={cameraRef}
-          >
-            <PerspectiveCamera
-              ref={cameraRef}
-              position={[0, 0, cameraPosition.z]}
-              makeDefault
+    <>
+      {/* {showLoadingScreen && (
+        <LoadingButton setShowLoadingScreen={setShowLoadingScreen} />
+      )} */}
+      <Canvas
+        className="fixed top-0 left-0 h-screen w-screen outline-none"
+        onPointerMove={handleMouseMove}
+        onWheel={handleWheel}
+        flat
+      >
+        <LoadingProvider>
+          {showLoadingScreen && (
+            <LoadingScreen
+              showLoadingScreen={showLoadingScreen}
+              setShowLoadingScreen={setShowLoadingScreen}
             />
-            {/* <Camera ref={cameraRef} /> */}
+          )}
 
-            {/* <OrbitControls makeDefault /> */}
+          {/* Debug */}
+          <Perf position="top-left" visible={perfVisible} />
 
-            {/* Fog */}
-            <fogExp2 args={[0xff00ff, 0.8]} />
+          <ScrollControls pages={3}>
+            <ScrollHandler
+              stops={stops}
+              currentStop={currentStop}
+              ref={cameraRef}
+            >
+              <PerspectiveCamera
+                ref={cameraRef}
+                position={[0, 0, cameraPosition.z]}
+                makeDefault
+              />
+              {/* <Camera ref={cameraRef} /> */}
 
-            {/* Stars */}
-            <Stars ref={cameraRef} />
+              {/* <OrbitControls
+              // ref={cameraRef}
+              position={new THREE.Vector3(position.x, position.y, position.z)}
+              makeDefault
+            /> */}
 
-            {/* <Scroll> */}
-            {/* First Stop */}
-            {/* <FloatingContainer position={stop1} ref={floatingContainer1Ref}>
+              {/* Fog */}
+              <fogExp2 args={[0xff00ff, 0.8]} />
+
+              {/* Stars */}
+              <Stars ref={cameraRef} />
+
+              {/* <Scroll> */}
+              {/* First Stop */}
+              {/* <FloatingContainer position={stop1} ref={floatingContainer1Ref}>
               <Text
                 position={[0, 0, 0.51]}
                 fontSize={0.2}
@@ -241,72 +280,101 @@ function Scene() {
               </Text>
             </FloatingContainer> */}
 
-            {/* Second Stop */}
-            <FloatingContainer position={stop2} ref={floatingContainer2Ref}>
-              <Text
-                position={[0, 0, 0.51]}
-                fontSize={0.2}
-                color="white"
-                anchorX="center"
-                anchorY="middle"
-                characters="abcdefghijklmnopqrstuvwxyz0123456789!"
-              >
-                {wrapText(
-                  // hacky solution, need to improve
-                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit.Phasellus ut purus a erat euismod placerat. Vestibulum tristique lacinia augue sed placerat. Suspendisse eget lacus sit amet arcumalesuada bibendum et ut ante. Aliquam neque metus, euismod uthendrerit nec, tincidunt quis arcu. Pellentesque sed est ac lacuselementum sodales. Phasellus iaculis, odio ac malesuada congue, nibhante faucibus lorem, non pellentesque ante velit ut ipsum. Sed duinibh, pharetra ac tempus sed, sodales a risus.",
-                  40
-                )}
-              </Text>
-            </FloatingContainer>
+              {/* Second Stop */}
+              <FloatingContainer position={stop2} ref={floatingContainer2Ref}>
+                <Text
+                  position={[0, 0, 0.51]}
+                  fontSize={0.2}
+                  color="white"
+                  anchorX="center"
+                  anchorY="middle"
+                  characters="abcdefghijklmnopqrstuvwxyz0123456789!"
+                >
+                  {wrapText(
+                    // hacky solution, need to improve
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit.Phasellus ut purus a erat euismod placerat. Vestibulum tristique lacinia augue sed placerat. Suspendisse eget lacus sit amet arcumalesuada bibendum et ut ante. Aliquam neque metus, euismod uthendrerit nec, tincidunt quis arcu. Pellentesque sed est ac lacuselementum sodales. Phasellus iaculis, odio ac malesuada congue, nibhante faucibus lorem, non pellentesque ante velit ut ipsum. Sed duinibh, pharetra ac tempus sed, sodales a risus.",
+                    40
+                  )}
+                </Text>
+              </FloatingContainer>
 
-            {/* FinalDestination - keeping it in the beginning for now */}
-            <Land
-              position={new THREE.Vector3(position.x, position.y, position.z)}
-              rotation={new THREE.Euler(rotation.x, rotation.y, rotation.z)}
-              fullDoorRotation={
-                new THREE.Euler(
-                  fullDoorRotation.x,
-                  fullDoorRotation.y,
-                  fullDoorRotation.z
-                )
-              }
-              doorRotation={
-                new THREE.Euler(doorRotation.x, doorRotation.y, doorRotation.z)
-              }
-              fullDoorPosition={
-                new THREE.Vector3(
-                  fullDoorPosition.x,
-                  fullDoorPosition.y,
-                  fullDoorPosition.z
-                )
-              }
-              ref={landRef}
-            />
+              {/* FinalDestination - keeping it in the beginning for now */}
+              <Island
+                position={new THREE.Vector3(position.x, position.y, position.z)}
+                rotation={new THREE.Euler(rotation.x, rotation.y, rotation.z)}
+                fullDoorRotation={
+                  new THREE.Euler(
+                    fullDoorRotation.x,
+                    fullDoorRotation.y,
+                    fullDoorRotation.z
+                  )
+                }
+                doorRotation={
+                  new THREE.Euler(
+                    doorRotation.x,
+                    doorRotation.y,
+                    doorRotation.z
+                  )
+                }
+                fullDoorPosition={
+                  new THREE.Vector3(
+                    fullDoorPosition.x,
+                    fullDoorPosition.y,
+                    fullDoorPosition.z
+                  )
+                }
+                lightPosition={
+                  new THREE.Vector3(
+                    lightPosition.x,
+                    lightPosition.y,
+                    lightPosition.z
+                  )
+                }
+                lightScale={
+                  new THREE.Vector3(lightScale.x, lightScale.y, lightScale.z)
+                }
+                lightRotation={
+                  new THREE.Euler(
+                    lightRotation.x,
+                    lightRotation.y,
+                    lightRotation.z
+                  )
+                }
+                // targetPosition={
+                //   new THREE.Vector3(
+                //     targetPosition.x,
+                //     targetPosition.y,
+                //     targetPosition.z
+                //   )
+                // }
+              />
 
-            {/* FInal Stop */}
-            <group position={stop3}>
-              <Text position={[0, 2, -9]} fontSize={0.5} color="white">
-                Your art should be alive
-              </Text>
-              {/* Land mass */}
-              <Box position={[0, -1, -10]} args={[4, 1, 6]}>
-                <meshStandardMaterial color="gray" />
-              </Box>
+              {/* FInal Stop */}
+              <group position={stop3}>
+                <Text position={[0, 2, -9]} fontSize={0.5} color="white">
+                  Your art should be alive
+                </Text>
+                {/* Land mass */}
+                <Box position={[0, -1, -10]} args={[4, 1, 6]}>
+                  <meshStandardMaterial color="gray" />
+                </Box>
 
-              {/* Door */}
-              <Box position={[0, 0, -9]} args={[1, 2, 0.1]}>
-                <meshStandardMaterial color="brown" />
-              </Box>
-            </group>
-            {/* </Scroll> */}
-            {/* </Scroll> */}
-          </ScrollHandler>
-        </ScrollControls>
+                {/* Door */}
+                <Box position={[0, 0, -9]} args={[1, 2, 0.1]}>
+                  <meshStandardMaterial color="brown" />
+                </Box>
+              </group>
+              {/* </Scroll> */}
+              {/* </Scroll> */}
+            </ScrollHandler>
+          </ScrollControls>
 
-        {/* Light */}
-        <ambientLight intensity={0.5} />
+          {/* Light */}
+          {/* <ambientLight intensity={0.5} /> */}
+        </LoadingProvider>
       </Canvas>
-    </div>
+    </>
+    // </div>
   );
 }
 
