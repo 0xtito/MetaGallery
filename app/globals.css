@@ -8,6 +8,16 @@
   --background-end-rgb: 255, 255, 255;
 }
 
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  overflow: hidden;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
@@ -24,4 +34,41 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fillBar {
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes fadeAway {
+  to {
+    opacity: 0;
+  }
+}
+
+@layer components {
+  .loading-symbol {
+    @apply w-12 h-12 border-t-4 border-blue-500 border-solid rounded-full animate-spin;
+  }
+  .loading-container {
+    @apply w-full h-4 border border-white mt-4 relative;
+  }
+
+  .loading-bar {
+    @apply h-full bg-white transition-all duration-500;
+    animation: fillBar 2s linear forwards;
+  }
+
+  .fade-out {
+    @apply transition-opacity duration-1000 ease-out;
+    animation: fadeAway 1s forwards;
+  }
 }
