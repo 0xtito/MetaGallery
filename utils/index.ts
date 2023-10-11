@@ -1,3 +1,6 @@
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
 export function wrapText(text: string, maxLength: number): string {
   const words = text.split(" ");
   let wrappedText = "";
@@ -13,4 +16,8 @@ export function wrapText(text: string, maxLength: number): string {
   }
   wrappedText += line;
   return wrappedText.trim();
+}
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 }
