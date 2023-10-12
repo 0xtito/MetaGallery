@@ -4,11 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "devXR": "next dev --experimental-https",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@coconut-xr/koestlich": "^0.3.11",
+    "@coconut-xr/natuerlich": "^0.0.35",
+    "@coconut-xr/xinteraction": "^0.1.8",
     "@headlessui/react": "^1.7.17",
     "@react-three/drei": "^9.86.3",
     "@react-three/fiber": "^8.14.5",
@@ -22,7 +26,8 @@
     "react": "^18",
     "react-dom": "^18",
     "tailwind-merge": "^1.14.0",
-    "three": "^0.157.0"
+    "three": "^0.157.0",
+    "zustand": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^20",

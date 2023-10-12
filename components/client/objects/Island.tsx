@@ -10,11 +10,8 @@ import {
 } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import React, { useContext, useEffect } from "react";
-import { useControls } from "leva";
 import * as THREE from "three";
-import { DirectionalLightHelper } from "three";
-
-import { SpotLightHelper } from "three";
+import { useRouter } from "next/navigation";
 
 // @ts-ignore
 import fragment from "@/shaders/FloatingContainer/fragment.glsl";
@@ -64,10 +61,16 @@ function Island({
     new THREE.Euler(0, -1.6, 0)
   );
 
+  const router = useRouter();
+
+  console.log("island rendered");
+
   const islandRef = React.useRef<THREE.Group>(null!);
 
-  console.log("hi");
-  console.log({ loaded, total });
+  const handleDoorClick = () => {
+    console.log("Door clicked");
+    router.push("/xr");
+  };
 
   // const depthBuffer = useDepthBuffer({ frames: 1 });
 
@@ -131,6 +134,7 @@ function Island({
             name="doorWithHingeAtOrigin"
             onPointerEnter={() => setHoveringDoor(true)}
             onPointerLeave={() => setHoveringDoor(false)}
+            onClick={() => handleDoorClick()}
           >
             <group name="doorRotatedAroundHinge">
               <mesh

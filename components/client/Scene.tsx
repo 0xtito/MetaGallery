@@ -214,6 +214,8 @@ function Scene() {
     }
   };
 
+  // console.log(NEXT_PUBLIC_VERCEL_URL!);
+
   return (
     <>
       {/* {showLoadingScreen && (
@@ -298,7 +300,7 @@ function Scene() {
                 </Text>
               </FloatingContainer>
 
-              {/* FinalDestination - keeping it in the beginning for now */}
+              {/* Island - keeping it in the beginning for now */}
               <Island
                 position={new THREE.Vector3(position.x, position.y, position.z)}
                 rotation={new THREE.Euler(rotation.x, rotation.y, rotation.z)}
@@ -340,13 +342,6 @@ function Scene() {
                     lightRotation.z
                   )
                 }
-                // targetPosition={
-                //   new THREE.Vector3(
-                //     targetPosition.x,
-                //     targetPosition.y,
-                //     targetPosition.z
-                //   )
-                // }
               />
 
               {/* FInal Stop */}
