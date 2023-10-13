@@ -6,6 +6,8 @@ import {
   Grabbable,
   Hands,
 } from "@coconut-xr/natuerlich/defaults";
+import { getMeshId } from "@coconut-xr/natuerlich";
+import { RoundedBox } from "@react-three/drei";
 import {
   RootContainer,
   Image,
@@ -21,55 +23,88 @@ import {
   SpaceGroup,
   useNativeFramebufferScaling,
   useHeighestAvailableFrameRate,
+  TrackedMesh,
+  useTrackedMeshes,
 } from "@coconut-xr/natuerlich/react";
 import { Quaternion } from "three";
 
+import { onIntersectionCallback } from "@/utils/types";
+import { TrackedMeshes } from "@/components/client/xr";
+import BuildRoom from "./BuildRoom";
+
 const sessionOptions: XRSessionInit = {
   // requiredFeatures: ["local-floor", "hand-tracking", "anchors"],
-  requiredFeatures: ["local-floor"],
+  requiredFeatures: [
+    "local-floor",
+    // "unbounded", // both local-bounded and unbounded do not work on quest 3
+    "hit-test",
+    "mesh-detection",
+    "plane-detection",
+  ],
 };
 
-function WebXRInit() {
-  const [anchor, createAnchor] = usePersistedAnchor("test-anchor");
-  const enterAR = useEnterXR("immersive-ar", sessionOptions);
-  const enterVR = useEnterXR("immersive-vr", sessionOptions);
+import type { XCameraRayIntersection } from "@coconut-xr/xinteraction";
+import { MeshesAndPlanesProvider } from "../providers";
 
-  const frameBufferScaling = useNativeFramebufferScaling();
+function WebXRInit() {
+  // const [anchor, createAnchor] = usePersistedAnchor("test-anchor");
+  const enterAR = useEnterXR("immersive-ar", sessionOptions);
+  // const enterVR = useEnterXR("immersive-vr", sessionOptions);
+
+  // const meshes = useTrackedMeshes();
+
+  // const frameBufferScaling = useNativeFramebufferScaling();
   const frameRate = useHeighestAvailableFrameRate();
+
+  const stopObject: onIntersectionCallback = (id, intersections) => {
+    console.log("item crossing!");
+    console.log({
+      id,
+      intersections,
+    });
+  };
 
   return (
     <>
-      <XRCanvas>
-        {/* <color args={[0]} attach="background" /> */}
-        <directionalLight position={[1, 1, 2]} />
-        <NonImmersiveCamera position={[0, 1.5, -0.1]} />
-        <Grabbable position={[0, 1.5, -0.5]}>
-          <mesh>
-            <boxGeometry />
-            <meshBasicMaterial color="red" />
-          </mesh>
-        </Grabbable>
-        <ImmersiveSessionOrigin>
-          {anchor != null && (
-            <SpaceGroup space={anchor.anchorSpace}>
-              <mesh scale={0.1}>
-                <boxGeometry />
-                <meshBasicMaterial color="red" />
-              </mesh>
-            </SpaceGroup>
-          )}
-          <Hands />
-          <Controllers />
+      <XRCanvas onIntersections={stopObject} frameRate={frameRate}>
+        <MeshesAndPlanesProvider>
+          {/* Room Architecture */}
+          <BuildRoom />
 
-          {/* <Hands
-            type="grab"
-            onPointerDownMissed={(e) => createAnchor(e.point, new Quaternion())}
-          />
-          <Controllers
-            type="grab"
-            onPointerDownMissed={(e) => createAnchor(e.point, new Quaternion())}
-          /> */}
-        </ImmersiveSessionOrigin>
+          {/* <color args={[0]} attach="background" /> */}
+          <directionalLight position={[1, 1, 2]} />
+          <NonImmersiveCamera position={[0, 1.5, -0.1]} />
+          <Grabbable position={[2, 0, -0.5]}>
+            <mesh>
+              {/* <boxBufferGeometry >
+              <bufferAttribute
+                
+              />
+            </boxBufferGeometry> */}
+              <RoundedBox
+                args={[0.2, 0.2, 1]} // Width, height, depth. Default is [1, 1, 1]
+                radius={0.05} // Radius of the rounded corners. Default is 0.05
+                smoothness={4} // The number of curve segments. Default is 4
+                bevelSegments={4} // The number of bevel segments. Default is 4, setting it to 0 removes the bevel, as a result the texture is applied to the whole geometry.
+                creaseAngle={0.4} // Smooth normals everywhere except faces that meet at an angle greater than the crease angle
+              >
+                <meshPhongMaterial color="#f3f3f3" />
+              </RoundedBox>
+              <meshBasicMaterial color="red" />
+            </mesh>
+          </Grabbable>
+          <Grabbable position={[0, 1.5, -0.5]}>
+            <mesh>
+              <boxGeometry args={[0.2, 0.2, 1]} />
+              <meshBasicMaterial color="red" />
+            </mesh>
+          </Grabbable>
+
+          <ImmersiveSessionOrigin>
+            <Hands />
+            <Controllers />
+          </ImmersiveSessionOrigin>
+        </MeshesAndPlanesProvider>
       </XRCanvas>
       <button
         className="p-4 absolute top-4 left-4 bg-black rounded-md shadow-md text-white"
@@ -82,7 +117,7 @@ function WebXRInit() {
       >
         AR
       </button>
-      <button
+      {/* <button
         className="p-4 absolute top-20 left-4 bg-black rounded-md shadow-md text-white "
         onClick={() => {
           console.log("hey");
@@ -92,7 +127,7 @@ function WebXRInit() {
         }}
       >
         VR
-      </button>
+      </button> */}
     </>
   );
 }
