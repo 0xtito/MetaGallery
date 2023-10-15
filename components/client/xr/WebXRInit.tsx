@@ -6,31 +6,20 @@ import {
   Grabbable,
   Hands,
 } from "@coconut-xr/natuerlich/defaults";
-import { getMeshId } from "@coconut-xr/natuerlich";
-import { RoundedBox } from "@react-three/drei";
-import {
-  RootContainer,
-  Image,
-  Text,
-  Container,
-  DefaultStyleProvider,
-} from "@coconut-xr/koestlich";
+
 import {
   useEnterXR,
   NonImmersiveCamera,
   ImmersiveSessionOrigin,
-  usePersistedAnchor,
-  SpaceGroup,
-  useNativeFramebufferScaling,
   useHeighestAvailableFrameRate,
-  TrackedMesh,
-  useTrackedMeshes,
 } from "@coconut-xr/natuerlich/react";
-import { Quaternion } from "three";
+import { Physics, Debug } from "@react-three/cannon";
 
 import { onIntersectionCallback } from "@/utils/types";
 import { TrackedMeshes } from "@/components/client/xr";
 import BuildRoom from "./BuildRoom";
+import { MeshesAndPlanesProvider } from "../providers";
+import TestBox from "./testObjects/TestBox";
 
 const sessionOptions: XRSessionInit = {
   // requiredFeatures: ["local-floor", "hand-tracking", "anchors"],
@@ -42,9 +31,6 @@ const sessionOptions: XRSessionInit = {
     "plane-detection",
   ],
 };
-
-import type { XCameraRayIntersection } from "@coconut-xr/xinteraction";
-import { MeshesAndPlanesProvider } from "../providers";
 
 function WebXRInit() {
   // const [anchor, createAnchor] = usePersistedAnchor("test-anchor");
@@ -68,42 +54,49 @@ function WebXRInit() {
     <>
       <XRCanvas onIntersections={stopObject} frameRate={frameRate}>
         <MeshesAndPlanesProvider>
-          {/* Room Architecture */}
-          <BuildRoom />
-
-          {/* <color args={[0]} attach="background" /> */}
-          <directionalLight position={[1, 1, 2]} />
           <NonImmersiveCamera position={[0, 1.5, -0.1]} />
-          <Grabbable position={[2, 0, -0.5]}>
-            <mesh>
-              {/* <boxBufferGeometry >
-              <bufferAttribute
-                
-              />
-            </boxBufferGeometry> */}
-              <RoundedBox
-                args={[0.2, 0.2, 1]} // Width, height, depth. Default is [1, 1, 1]
-                radius={0.05} // Radius of the rounded corners. Default is 0.05
-                smoothness={4} // The number of curve segments. Default is 4
-                bevelSegments={4} // The number of bevel segments. Default is 4, setting it to 0 removes the bevel, as a result the texture is applied to the whole geometry.
-                creaseAngle={0.4} // Smooth normals everywhere except faces that meet at an angle greater than the crease angle
-              >
-                <meshPhongMaterial color="#f3f3f3" />
-              </RoundedBox>
-              <meshBasicMaterial color="red" />
-            </mesh>
-          </Grabbable>
-          <Grabbable position={[0, 1.5, -0.5]}>
-            <mesh>
-              <boxGeometry args={[0.2, 0.2, 1]} />
-              <meshBasicMaterial color="red" />
-            </mesh>
-          </Grabbable>
 
-          <ImmersiveSessionOrigin>
-            <Hands />
-            <Controllers />
-          </ImmersiveSessionOrigin>
+          <Physics gravity={[0, 0.01, 0]}>
+            {/* <Debug color="black" scale={1.1}> */}
+            {/* <Grabbable> */}
+            <TestBox />
+            {/* </Grabbable> */}
+            {/* <Grabbable> */}
+            <TestBox position={[0, 2, 2]} />
+            {/* </Grabbable> */}
+
+            {/* <Grabbable position={[-0.5, 1, 0.5]}>
+              <mesh position={[-0.5, 1, 0.5]}>
+                <RoundedBox
+                  args={[0.2, 0.2, 1]} // Width, height, depth. Default is [1, 1, 1]
+                  radius={0.05} // Radius of the rounded corners. Default is 0.05
+                  smoothness={4} // The number of curve segments. Default is 4
+                  bevelSegments={4} // The number of bevel segments. Default is 4, setting it to 0 removes the bevel, as a result the texture is applied to the whole geometry.
+                  creaseAngle={0.4} // Smooth normals everywhere except faces that meet at an angle greater than the crease angle
+                >
+                  <meshPhongMaterial color="#f3f3f3" />
+                </RoundedBox>
+                <meshBasicMaterial color="red" />
+              </mesh>
+            </Grabbable> */}
+            {/* <Grabbable position={[0, 1.5, -0.5]}>
+              <mesh position={[0, 1.5, -0.5]}>
+                <boxGeometry args={[0.2, 0.2, 1]} />
+                <meshBasicMaterial color="red" />
+              </mesh>
+            </Grabbable> */}
+            {/* </Debug> */}
+
+            {/* <color args={[0]} attach="background" /> */}
+            {/* <directionalLight position={[1, 1, 2]} /> */}
+
+            <ImmersiveSessionOrigin>
+              {/* Needs to be inside ImmersiveSession Origin to use TrackedMesh/TrackedPlane */}
+              <BuildRoom />
+              <Hands />
+              <Controllers />
+            </ImmersiveSessionOrigin>
+          </Physics>
         </MeshesAndPlanesProvider>
       </XRCanvas>
       <button
