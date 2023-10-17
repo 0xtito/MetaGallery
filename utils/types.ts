@@ -33,3 +33,17 @@ export interface LoadingAssetsContextProps {
 export type onIntersectionCallback =
   | ((id: number, intersections: readonly XCameraRayIntersection[]) => void)
   | undefined;
+
+export interface SpacialPlaneProps {
+  plane: XRPlane;
+  name: string;
+  orientation?: "horizontal" | "vertical";
+  mass?: number;
+  color?: string;
+}
+
+export interface SpacialBoxProps {
+  mesh: XRMesh;
+  color?: string;
+  mass?: number;
+}
