@@ -1,2 +1,3 @@
 export * from "./MeshesAndPlanesProvider";
-export * from "./LoadingProvider";
+export * from "./LoadingAssetsProvider";
+export * from "./LoadingRoomProvider";

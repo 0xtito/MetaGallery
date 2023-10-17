@@ -4,7 +4,7 @@ import LoadingPageText from "./LandPageText";
 import { useContext, useState, useEffect } from "react";
 
 import { cn } from "@/utils";
-import { LoadingContext } from "./LoadingProvider";
+import { LoadingContext } from "../providers/LoadingAssetsProvider";
 
 function LoadingButton({
   setShowLoadingScreen,

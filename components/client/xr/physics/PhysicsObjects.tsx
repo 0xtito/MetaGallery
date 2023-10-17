@@ -9,6 +9,8 @@ interface PlanePhysicsProps extends PlaneProps {
   orientation?: "horizontal" | "vertical";
 }
 
+interface BoxPhysicsProps {}
+
 export const PlanePhysics = forwardRef(
   (
     { orientation = "vertical", ...props }: PlanePhysicsProps,
@@ -55,10 +57,10 @@ export const PlanePhysics = forwardRef(
 //   }
 // );
 
-export const BoxPhysics = forwardRef(function BoxPhysics(props, ref) {
+export const BoxPhysics = forwardRef((props, ref) => {
   return (
-    <>
+    <mesh>
       <></>
-    </>
+    </mesh>
   );
 });

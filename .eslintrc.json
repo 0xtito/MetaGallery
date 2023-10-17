@@ -1,3 +1,8 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": ["next/core-web-vitals"],
+  "rules": {
+    // add a rule to disable react-display-name
+    // will add "extends": ["next/core-web-vitals", "eslint:recommended", "next"] later
+    "react/display-name": "off"
+  }
 }

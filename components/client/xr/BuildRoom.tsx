@@ -1,6 +1,6 @@
 "use client";
-
-import React, { useEffect, useContext, Suspense } from "react";
+import { XRPlanes } from "three/examples/jsm/webxr/XRPlanes.js";
+import React, { useEffect, useContext, Suspense, useState } from "react";
 import {
   TrackedPlane,
   TrackedMesh,
@@ -8,59 +8,86 @@ import {
   useTrackedPlanes,
 } from "@coconut-xr/natuerlich/react";
 import { getMeshId, getPlaneId } from "@coconut-xr/natuerlich";
-import { MeshesAndPlanesContext } from "../providers";
+import { MeshesAndPlanesContext, LoadingRoomContext } from "../providers";
 import * as THREE from "three";
 import {
   SpacialBox,
   SpacialPlane,
 } from "@/components/client/xr/spacialObjects";
 
+import {
+  DEFAULT_MESH_STRUCTURE,
+  DEFAULT_PLANE_STRUCTURE,
+} from "@/utils/constants";
+
 import { three_colors } from "@/utils/constants";
-import { usePlane } from "@react-three/cannon";
+import { useThree } from "@react-three/fiber";
+// import { usePlane } from "@react-three/cannon";
 
 function BuildRoom() {
-  const { meshes, planes } = useContext(MeshesAndPlanesContext);
+  // const three = useThree();
+
+  // three.xr.connect();
+  const { meshes, planes, isLoading } = useContext(MeshesAndPlanesContext);
+  // const { isLoading } = useContext(LoadingRoomContext);
   const [isPlanesSet, setIsPlanesSet] = React.useState<boolean>(false);
+  const [isMeshSet, setIsMeshSet] = React.useState<boolean>(false);
 
-  console.log({ planes, meshes });
+  // if (isLoading) {
+  //   return null;
+  // }
 
-  useEffect(() => {
-    if (planes && !isPlanesSet) {
-      setIsPlanesSet(true);
-    }
-  }, [planes, isPlanesSet]);
+  // console.log("RERENDER");
+
+  if ((!meshes || !planes) && !isLoading) {
+    return null;
+  } else {
+    // console.log("loaded in BuildRoom");
+    // console.log({ meshes, planes });
+  }
+  // return null;
+  // console.log({ meshes, planes });
 
   return (
     <>
-      <pointLight position={[0, 1, 0]} intensity={10} />
-      {Object.entries(planes).map(([name, planes]) => {
+      {/* <pointLight position={[0, 1, 0]} intensity={10} /> */}
+      {Object.entries(planes).map(([name, planes], index) => {
         const colorsArr = Object.values(three_colors);
-
+        if (index === 0) console.log(planes);
         const color = colorsArr[Math.floor(Math.random() * colorsArr.length)];
+
+        // console.log("plane name: ", name);
 
         try {
           return (
             <Suspense fallback={null}>
-              <group key={`${name}+plane`}>
-                {planes.map((plane) => {
-                  return (
-                    <SpacialPlane
-                      type="Static"
-                      name={name}
-                      plane={plane}
-                      orientation={plane.orientation}
-                      key={getPlaneId(plane)}
-                      color={color}
-                    />
-                  );
-                  // return (
-                  //   <TrackedPlane plane={plane} key={getPlaneId(plane)}>
-                  //     <meshPhongMaterial wireframe color={color} />
-                  //     {/* <meshBasicMaterial color={color} /> */}
-                  //   </TrackedPlane>
-                  // );
-                })}
-              </group>
+              <>
+                {/* {isPlanesSet && ( */}
+                <group key={`${name}+plane`}>
+                  {planes.map((plane) => {
+                    // console.log({ plane, planeId: getPlaneId(plane) });
+
+                    return <></>;
+                    return (
+                      <SpacialPlane
+                        type="Static"
+                        name={name}
+                        plane={plane}
+                        orientation={plane.orientation}
+                        key={getPlaneId(plane)}
+                        color={color}
+                      />
+                    );
+                    // return (
+                    //   <TrackedPlane plane={plane} key={getPlaneId(plane)}>
+                    //     <meshPhongMaterial wireframe color={color} />
+                    //     {/* <meshBasicMaterial color={color} /> */}
+                    //   </TrackedPlane>
+                    // );
+                  })}
+                </group>
+                {/*  )} */}
+              </>
             </Suspense>
           );
         } catch (error) {
@@ -69,37 +96,30 @@ function BuildRoom() {
           throw new Error(error as any);
         }
       })}
-      {Object.entries(meshes).map(([name, meshes]) => {
+      {Object.entries(meshes).map(([name, meshes], index) => {
         // a random color in hex for each type of mesh
         // select a random color form an object of colors
+        if (index === 0) console.log(meshes);
+
         const colorsArr = Object.values(three_colors);
 
         const color = colorsArr[Math.floor(Math.random() * colorsArr.length)];
+
+        // console.log("mesh name: ", name);
 
         try {
           return (
             <group key={`${name}+mesh`}>
               {meshes.map((mesh) => {
-                console.log({ mesh, meshId: getMeshId(mesh) });
-
-                // const color = new THREE.Color();
-
-                // color.set(colorValue).convertSRGBToLinear().toArray();
+                // console.log({ mesh, meshId: getMeshId(mesh) });
 
                 return (
                   <SpacialBox
-                    type="Static"
                     mesh={mesh}
-                    key={getMeshId(mesh)}
+                    key={`${getMeshId(mesh)}`}
                     color={color}
                   />
                 );
-
-                // return (
-                //   <TrackedMesh mesh={mesh} key={getMeshId(mesh)}>
-                //     <meshBasicMaterial color={color} />
-                //   </TrackedMesh>
-                // );
               })}
             </group>
           );
@@ -114,3 +134,5 @@ function BuildRoom() {
 }
 
 export default React.memo(BuildRoom);
+
+// export default BuildRoom;

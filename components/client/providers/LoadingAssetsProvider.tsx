@@ -5,25 +5,16 @@ import { useGLTF, useTexture, useProgress } from "@react-three/drei";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import * as THREE from "three";
 
-interface LoadingContextProps {
-  land?: GLTF;
-  door?: GLTF;
-  landTexture?: THREE.Texture;
-  doorTexture?: THREE.Texture;
-  loadingAlpha: number;
-  item: string;
-  loaded: number;
-  total: number;
-}
+import { LoadingAssetsContextProps } from "@/utils/types";
 
-export const LoadingContext = createContext<LoadingContextProps>({
+export const LoadingAssetsContext = createContext<LoadingAssetsContextProps>({
   loadingAlpha: 1,
   item: "",
   loaded: 0,
   total: 0,
 });
 
-function LoadingProvider({ children }: { children: React.ReactNode }) {
+function LoadingAssetsProvider({ children }: { children: React.ReactNode }) {
   useGLTF.preload("/assets/island/land_final.glb");
   useGLTF.preload("/assets/island/door_final.glb");
   useTexture.preload("/assets/island/land_baked.jpg");
@@ -65,8 +56,10 @@ function LoadingProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <LoadingContext.Provider value={values}>{children}</LoadingContext.Provider>
+    <LoadingAssetsContext.Provider value={values}>
+      {children}
+    </LoadingAssetsContext.Provider>
   );
 }
 
-export default LoadingProvider;
+export default LoadingAssetsProvider;

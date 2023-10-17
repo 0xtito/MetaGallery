@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 import fragment from "@/shaders/FloatingContainer/fragment.glsl";
 // @ts-ignore
 import vertex from "@/shaders/FloatingContainer/vertex.glsl";
-import { LoadingContext } from "../landingPage/LoadingProvider";
+import { LoadingAssetsContext } from "../providers/LoadingAssetsProvider";
 
 type LandRefType = {
   landRef: React.RefObject<
@@ -51,8 +51,9 @@ function Island({
   lightRotation: THREE.Euler;
   targetPosition?: THREE.Vector3;
 }) {
+  // Should create a loading Provider for this as well
   const { land, door, landTexture, doorTexture, loaded, total } =
-    useContext(LoadingContext);
+    useContext(LoadingAssetsContext);
   const [_doorRotation, setDoorRotation] = React.useState<THREE.Euler>(
     new THREE.Euler(0, 0, 0)
   );

@@ -22,7 +22,7 @@ import { wrapText } from "@/utils";
 import Camera from "./Camera";
 import ScrollHandler from "./ScrollHandler";
 import Island from "./objects/Island";
-import LoadingProvider from "./landingPage/LoadingProvider";
+import LoadingProvider from "./providers/LoadingAssetsProvider";
 import LoadingScreen from "./landingPage/LoadingScreen";
 import LoadingButton from "./landingPage/LoadingButton";
 
