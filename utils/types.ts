@@ -14,11 +14,12 @@ export type PlaneTypes =
   | string;
 
 export interface MeshesAndPlanesContextProps {
-  meshes: Record<PlaneTypes, XRMesh[]>;
-  planes: Record<PlaneTypes, XRPlane[]>;
+  meshes: Record<PlaneTypes, XRMesh[]> | {};
+  planes: Record<PlaneTypes, XRPlane[]> | {};
+  isLoading: boolean;
 }
 
-export interface LoadingContextProps {
+export interface LoadingAssetsContextProps {
   land?: GLTF;
   door?: GLTF;
   landTexture?: THREE.Texture;
