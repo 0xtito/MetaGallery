@@ -4,14 +4,14 @@ import LoadingPageText from "./LandPageText";
 import { useContext, useState, useEffect } from "react";
 
 import { cn } from "@/utils";
-import { LoadingContext } from "../providers/LoadingAssetsProvider";
+import { LoadingAssetsContext } from "../providers/LoadingAssetsProvider";
 
 function LoadingButton({
   setShowLoadingScreen,
 }: {
   setShowLoadingScreen: (value: boolean) => void;
 }) {
-  const { total, loaded } = useContext(LoadingContext);
+  const { total, loaded } = useContext(LoadingAssetsContext);
   const [show, setShow] = useState(false);
 
   useEffect(() => {
