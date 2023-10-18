@@ -173,3 +173,6 @@ export const three_colors = {
   yellow: "#ffff00",
   yellowgreen: "#9acd32",
 };
+
+export const DEMO_NFT_URL =
+  "https://dl.openseauserdata.com/cache/originImage/files/feb1cb3253570179744438bb08eb569c.jpg";
