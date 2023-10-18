@@ -1,8 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
-import { useBox } from "@react-three/cannon";
-import { RoundedBox } from "@react-three/drei";
+import React, { useRef } from "react";
 import {
   RapierRigidBody,
   RigidBody,
@@ -10,11 +8,12 @@ import {
   quat,
   vec3,
 } from "@react-three/rapier";
-import { useFrame } from "@react-three/fiber";
+import { ThreeEvent, useFrame } from "@react-three/fiber";
 import { useInputSources } from "@coconut-xr/natuerlich/react";
 
 import type { Mesh, Vector3 } from "three";
 import { isXIntersection } from "@coconut-xr/xinteraction";
+import GrabPhysics from "../physics/GrabPhysics";
 
 function TestBox(props: any) {
   const rigidRef = useRef<RapierRigidBody>(null);
@@ -26,52 +25,46 @@ function TestBox(props: any) {
     pointToObjectOffset: Vector3;
   }>();
 
+  const handleGrab = (e: ThreeEvent<PointerEvent>) => {
+    if (rigidRef.current) {
+      rigidRef.current.setTranslation(vec3(e.point), true);
+      rigidRef.current.resetTorques(true);
+      rigidRef.current.resetForces(true);
+      rigidRef.current.setAngvel(vec3({ x: 0, y: 0, z: 0 }), true);
+      rigidRef.current.setGravityScale(0, true);
+    } else {
+      console.log("rigidRef.current is not set");
+    }
+  };
+
+  const handleRelease = (e: ThreeEvent<PointerEvent>, velocity?: Vector3) => {
+    if (rigidRef.current) {
+      rigidRef.current?.setGravityScale(1, true);
+      console.log("velocity", velocity);
+      rigidRef.current.setLinvel(vec3(velocity), true);
+    } else {
+      console.log("rigidRef.current is not set");
+    }
+  };
+
   return (
     <RigidBody
       ref={rigidRef}
       colliders={"cuboid"}
       position={props.position ?? [0, 0, 0]}
       canSleep={false}
+      linearDamping={0.5}
+      angularDamping={0.7}
+      ccd={true}
     >
-      <mesh
+      <GrabPhysics
         ref={ref}
-        onPointerDown={(e) => {
-          if (
-            ref.current != null &&
-            downState.current == null &&
-            isXIntersection(e)
-          ) {
-            e.stopPropagation();
-            (e.target as HTMLElement).setPointerCapture(e.pointerId);
-            console.log("ref.current.position", ref.current.position);
-            downState.current = {
-              pointerId: e.pointerId,
-              pointToObjectOffset: ref.current.position.clone().sub(e.point),
-            };
-            rigidRef.current?.setTranslation(vec3(e.point), true);
-          }
-        }}
-        onPointerUp={(e) => {
-          if (downState.current?.pointerId != e.pointerId) {
-            return;
-          }
-          downState.current = undefined;
-        }}
-        onPointerMove={(e) => {
-          if (
-            ref.current == null ||
-            downState.current == null ||
-            e.pointerId != downState.current.pointerId ||
-            !isXIntersection(e)
-          ) {
-            return;
-          }
-          rigidRef.current?.setTranslation(vec3(e.point), true);
-        }}
+        handleGrab={handleGrab}
+        handleRelease={handleRelease}
       >
         <boxGeometry args={[0.1, 0.1, 0.1]} />
         <meshBasicMaterial color={props.color ?? "red"} />
-      </mesh>
+      </GrabPhysics>
     </RigidBody>
   );
 }

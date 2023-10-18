@@ -18,6 +18,7 @@ function SpacialBox({ mesh, color, mass = 1 }: SpacialBoxProps) {
         colliders={"trimesh"}
         canSleep={false}
         type={"fixed"}
+        // onCollisionEnter={(e) => console.log(e)}
       >
         <TrackedMesh ref={ref} mesh={mesh}>
           {color ? (

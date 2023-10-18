@@ -23,6 +23,7 @@ function SpacialPlane({
       colliders={"trimesh"}
       canSleep={false}
       type="fixed"
+      // onCollisionEnter={(e) => console.log(e)}
     >
       <TrackedPlane ref={ref} plane={plane}>
         {color ? (

@@ -34,10 +34,21 @@ function WebXRInit() {
       <XRCanvas frameRate={frameRate}>
         <NonImmersiveCamera position={[0, 1.5, -0.1]} />
 
-        <Physics colliders={false} gravity={[0, -0.02, 0]} debug>
-          <TestBox color="blue" position={[0.1, 1, -0.3]} />
+        <Physics
+          colliders={false}
+          gravity={[0, -0.5, 0]}
+          interpolate={false}
+          timeStep={"vary"}
+          debug
+        >
+          {/* Putting this here so the blocks only load in once the user starts AR */}
+          {startXR && (
+            <>
+              <TestBox color="blue" position={[0.1, 1, -0.3]} />
 
-          <TestBox position={[-0.1, 1, -0.3]} />
+              <TestBox position={[-0.1, 1, -0.3]} />
+            </>
+          )}
 
           <ImmersiveSessionOrigin>
             {startXR && (
@@ -46,7 +57,7 @@ function WebXRInit() {
               </MeshesAndPlanesProvider>
             )}
             <Hands type="grab" />
-            <Controllers type="grab" />
+            <Controllers type="pointer" />
           </ImmersiveSessionOrigin>
         </Physics>
       </XRCanvas>
