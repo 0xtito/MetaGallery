@@ -10,7 +10,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@coconut-xr/apfel-kruemel": "^0.0.6",
     "@coconut-xr/koestlich": "^0.3.11",
+    "@coconut-xr/lucide-koestlich": "^0.0.3",
     "@coconut-xr/natuerlich": "^0.0.38",
     "@coconut-xr/xinteraction": "^0.1.8",
     "@headlessui/react": "^1.7.17",
