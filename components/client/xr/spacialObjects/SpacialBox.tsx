@@ -7,13 +7,14 @@ import { RapierRigidBody, RigidBody } from "@react-three/rapier";
 
 import { SpacialBoxProps } from "@/utils/types";
 
-function SpacialBox({ mesh, color, mass = 1 }: SpacialBoxProps) {
+function SpacialBox({ mesh, color, name, mass = 1 }: SpacialBoxProps) {
   const ref = useRef<Mesh>(null);
   const rigidRef = useRef<RapierRigidBody>(null);
 
   return (
     <>
       <RigidBody
+        name={name}
         ref={rigidRef}
         colliders={"trimesh"}
         canSleep={false}

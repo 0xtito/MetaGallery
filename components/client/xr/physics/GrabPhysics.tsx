@@ -11,22 +11,13 @@ import React, {
 import type { Vector3, Mesh } from "three";
 import type { ThreeEvent } from "@react-three/fiber";
 import { isXIntersection } from "@coconut-xr/xinteraction";
-import { useRapier } from "@react-three/rapier";
 
-interface GrabProps {
-  children: React.ReactNode;
-  handleGrab: (e: ThreeEvent<PointerEvent>) => void;
-  handleRelease: (e: ThreeEvent<PointerEvent>, velocity?: Vector3) => void;
-}
-
-// downState: {
-//     pointerId: number;
-//     pointToObjectOffset: Vector3;
-//   };
+import { GrabProps } from "@/utils/types";
+import { usePointerContext } from "@/components/client/providers";
 
 const GrabPhysics = forwardRef(
   (
-    { children, handleGrab, handleRelease }: GrabProps,
+    { children, handleGrab, handleRelease, name }: GrabProps,
     meshRef: ForwardedRef<Mesh>
   ) => {
     const downState = useRef<{
@@ -35,14 +26,14 @@ const GrabPhysics = forwardRef(
       positions: Vector3[];
       timestamps: number[];
     }>();
-    // const positionsRef = useRef<Vector3[]>([]);
-    // const timestampsRef = useRef<number[]>([]);
     const maxEntries = useMemo(() => 5, []);
-
     const ref = useMemo(() => meshRef as MutableRefObject<Mesh>, [meshRef]);
+
+    const { pointers } = usePointerContext();
 
     return (
       <mesh
+        name={name ?? ""}
         ref={ref}
         onPointerDown={(e) => {
           if (
@@ -79,10 +70,6 @@ const GrabPhysics = forwardRef(
               .clone()
               .sub(downState.current.positions[0]);
             const velocity = deltaPosition.divideScalar(deltaTime);
-            console.log("velocity", velocity);
-            console.log("deltaPosition", deltaPosition);
-            console.log("deltaTime", deltaTime);
-            console.log("e.timeStamp", e.timeStamp);
 
             downState.current = undefined;
 
@@ -93,23 +80,20 @@ const GrabPhysics = forwardRef(
           if (
             ref.current == null ||
             downState.current == null ||
-            e.pointerId != downState.current.pointerId ||
+            // e.pointerId != downState.current.pointerId ||
             !isXIntersection(e)
           ) {
             return;
           }
-          // rigidRef.current?.setTranslation(vec3(e.point), true);
+
+          // console.log("onPointerMove - e.point: ", e.point);
+
+          // console.log("onPointerMove - e.point.ray: ", e.);
 
           handleGrab(e);
-
-          // console.log();
-
           const timeStamp = new Date().getTime();
-          // console.log("timeStamp", timeStamp);
           downState.current.positions.push(e.point);
           downState.current.timestamps.push(timeStamp);
-          // console.log("downState positions", downState.current.positions);
-          // console.log("downState timestamps", downState.current.timestamps);
 
           if (downState.current.positions.length > maxEntries) {
             downState.current.positions.shift();

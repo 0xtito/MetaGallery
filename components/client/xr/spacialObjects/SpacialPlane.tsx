@@ -7,18 +7,13 @@ import { RigidBody, RapierRigidBody } from "@react-three/rapier";
 
 import { SpacialPlaneProps } from "@/utils/types";
 
-function SpacialPlane({
-  plane,
-  name,
-  orientation = "horizontal",
-  mass = 1,
-  color,
-}: SpacialPlaneProps) {
+function SpacialPlane({ plane, name, mass = 1, color }: SpacialPlaneProps) {
   const ref = useRef<Mesh>(null);
   const rigidRef = useRef<RapierRigidBody>(null);
 
   return (
     <RigidBody
+      name={name}
       ref={rigidRef}
       colliders={"trimesh"}
       canSleep={false}
