@@ -8,6 +8,7 @@ import React, {
   useEffect,
   useMemo,
 } from "react";
+import { Vector3 } from "three";
 
 type TriggerState = ButtonState | "NOT_SET";
 
@@ -15,6 +16,7 @@ type PointerState = {
   z: number;
   state: TriggerState;
   heldObject: { uuid: string; name?: string } | null;
+  controllerPosition: Vector3 | null;
 };
 
 type Pointers = {
@@ -45,11 +47,13 @@ function PointerStateProvider({ children }: { children: React.ReactNode }) {
     left: {
       z: 0,
       state: "NOT_SET",
+      controllerPosition: null,
       heldObject: null,
     },
     right: {
       z: 0,
       state: "NOT_SET",
+      controllerPosition: null,
       heldObject: null,
     },
   };
@@ -57,7 +61,6 @@ function PointerStateProvider({ children }: { children: React.ReactNode }) {
   const [pointers, setPointers] = useState(initialState);
 
   const setLeftPointer = useCallback((data: PointerState) => {
-    console.log("inside setLeftPointer");
     setPointers((prev) => ({
       ...prev,
       left: data,
@@ -65,17 +68,16 @@ function PointerStateProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const setRightPointer = useCallback((data: PointerState) => {
-    console.log("inside setRightPointer");
     setPointers((prev) => ({
       ...prev,
       right: data,
     }));
   }, []);
 
-  useEffect(() => {
-    console.log(`pointers.left`, pointers.left);
-    console.log(`pointers.right`, pointers.right);
-  }, [pointers]);
+  // useEffect(() => {
+  //   console.log(`pointers.left`, pointers.left);
+  //   console.log(`pointers.right`, pointers.right);
+  // }, [pointers]);
 
   const values = useMemo(() => {
     return {

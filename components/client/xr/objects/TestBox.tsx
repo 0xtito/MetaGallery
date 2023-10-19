@@ -31,6 +31,8 @@ function TestBox(props: any) {
       rigidRef.current.resetForces(true);
       rigidRef.current.setAngvel(vec3({ x: 0, y: 0, z: 0 }), true);
       rigidRef.current.setGravityScale(0, true);
+
+      // rigidRef.current.ta
     } else {
       console.log("rigidRef.current is not set");
     }

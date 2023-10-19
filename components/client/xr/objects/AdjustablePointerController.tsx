@@ -9,7 +9,7 @@ import {
   useMemo,
   useCallback,
 } from "react";
-import { Mesh, Vector3 } from "three";
+import { Group, Mesh, Vector3 } from "three";
 import { useFrame } from "@react-three/fiber";
 import { XLinesIntersection } from "@coconut-xr/xinteraction";
 import {
@@ -59,6 +59,7 @@ function AdjustablePointerController({
     uuid: string;
     name?: string;
   } | null>(null);
+  const controllerRef = useRef<Group>(null);
 
   const { meshes, planes } = useContext(MeshesAndPlanesContext);
   const { pointers, setLeftPointer, setRightPointer } = usePointerContext();
@@ -79,8 +80,12 @@ function AdjustablePointerController({
       stateValue: TriggerState,
       heldObject: { uuid: string; name?: string } | null
     ) => {
-      console.log("inside updatePointerState");
-      const newState = { z: zValue, state: stateValue, heldObject: heldObject };
+      const newState = {
+        z: zValue,
+        state: stateValue,
+        heldObject: heldObject,
+        controllerPosition: controllerRef.current?.position || null,
+      };
       isRight ? setRightPointer(newState) : setLeftPointer(newState);
     },
     [setLeftPointer, setRightPointer]
@@ -114,7 +119,15 @@ function AdjustablePointerController({
 
   const handleSelectStart = useCallback(
     (e: XRInputSourceEvent) => {
-      console.log("inside handleSelectStart");
+      // controller shake
+      e.inputSource.gamepad?.hapticActuators.forEach((haptic) => {
+        console.log("haptic", haptic);
+        haptic.playEffect("dual-rumble", {
+          duration: 100,
+          strongMagnitude: 0.5,
+          weakMagnitude: 0.5,
+        });
+      });
       updatePointerState(
         handedness === "right",
         -rayLength,
@@ -128,7 +141,6 @@ function AdjustablePointerController({
 
   const handleSelectEnd = useCallback(
     (e: XRInputSourceEvent) => {
-      console.log("inside handleSelectEnd");
       updatePointerState(
         handedness === "right",
         -rayLength,
@@ -173,37 +185,42 @@ function AdjustablePointerController({
       !activePointer.heldObject ||
       capturedObject.uuid !== activePointer.heldObject.uuid
     ) {
+      console.log(`setting held object: `, capturedObject);
       setHeldObject({
         uuid: capturedObject.uuid,
         name: capturedObject.name || undefined,
       });
-      console.log("holding new object", intersection[0].capturedObject.name);
     }
   };
 
   useEffect(() => {
-    console.log("\nuse effect with dependencies: rayLength, heldObject\n");
     handedness == "right"
       ? setRightPointer({
           z: -rayLength,
           state: pointers.right.state,
           heldObject,
+          controllerPosition: controllerRef.current?.position || null,
+
+          // heldObject: pointers.right.heldObject,
         })
       : setLeftPointer({
           z: -rayLength,
           state: pointers.left.state,
           heldObject,
+          controllerPosition: controllerRef.current?.position || null,
+          // heldObject: pointers.left.heldObject,
         });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rayLength, heldObject]);
+  // }, [rayLength]);
 
   useEffect(() => {
-    console.log("handedness", handedness);
     if (handedness === "left") {
       setLeftPointer({
         z: -rayLength,
         state: ButtonState.DEFAULT,
         heldObject,
+        controllerPosition: controllerRef.current?.position || null,
       });
     }
 
@@ -212,15 +229,28 @@ function AdjustablePointerController({
         z: -rayLength,
         state: ButtonState.DEFAULT,
         heldObject,
+        controllerPosition: controllerRef.current?.position || null,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // useEffect(() => {
+  //   console.log(
+  //     `world position of the ${handedness} controller:`,
+  //     controllerRef.current?.getWorldPosition(controllerRef.current.position)
+  //   );
+  //   console.log(
+  //     "controllerRef.current?.position",
+  //     controllerRef.current?.position
+  //   );
+  //   console.log("controllerRef.current?", controllerRef.current);
+  // }, [pointers]);
+
   return (
     <>
       {inputSource.gripSpace && (
-        <SpaceGroup space={inputSource.gripSpace}>
+        <SpaceGroup ref={controllerRef} space={inputSource.gripSpace}>
           <Suspense fallback={null}>
             <DynamicControllerModel inputSource={inputSource} />
           </Suspense>

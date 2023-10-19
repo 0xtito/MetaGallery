@@ -1,17 +1,27 @@
 "use client";
 
-import { XRCanvas, Controllers, Hands } from "@coconut-xr/natuerlich/defaults";
+import { useState } from "react";
+import { XRCanvas, Hands } from "@coconut-xr/natuerlich/defaults";
 import {
   useEnterXR,
   NonImmersiveCamera,
   ImmersiveSessionOrigin,
   useHeighestAvailableFrameRate,
+  useNativeFramebufferScaling,
+  useInputSources,
 } from "@coconut-xr/natuerlich/react";
+import { clippingEvents } from "@coconut-xr/koestlich";
+import { getInputSourceId } from "@coconut-xr/natuerlich";
 import { Physics } from "@react-three/rapier";
-import { useState } from "react";
-import BuildRoom from "./BuildRoom";
-import { MeshesAndPlanesProvider } from "../providers";
-import TestBox from "./testObjects/TestBox";
+
+import BuildRoom from "@/components/client/xr/BuildRoom";
+import { MeshesAndPlanesProvider } from "@/components/client/providers";
+import PointerStateProvider from "@/components/client/providers/PointerStateProvider";
+import {
+  AdjustablePointerController,
+  TestBox,
+} from "@/components/client/xr/objects";
+import { Dashboard } from "@/components/client/xr/interface";
 
 const sessionOptions: XRSessionInit = {
   requiredFeatures: [
@@ -25,41 +35,61 @@ const sessionOptions: XRSessionInit = {
 function WebXRInit() {
   const enterAR = useEnterXR("immersive-ar", sessionOptions);
   const [startXR, setStartXR] = useState<boolean>(false);
+  const inputSources = useInputSources();
 
-  // const frameBufferScaling = useNativeFramebufferScaling();
+  const frameBufferScaling = useNativeFramebufferScaling();
   const frameRate = useHeighestAvailableFrameRate();
 
   return (
     <>
-      <XRCanvas frameRate={frameRate}>
-        <NonImmersiveCamera position={[0, 1.5, -0.1]} />
+      <XRCanvas
+        framerate={frameRate}
+        framebufferscaling={frameBufferScaling}
+        dpr={1}
+        // @ts-expect-error
+        events={clippingEvents}
+        gl={{ localClippingEnabled: true }}
+      >
+        <NonImmersiveCamera position={[-0.5, 1.5, -0.4]} />
 
-        <Physics
-          colliders={false}
-          gravity={[0, -0.5, 0]}
-          interpolate={false}
-          timeStep={"vary"}
-          debug
-        >
-          {/* Putting this here so the blocks only load in once the user starts AR */}
-          {startXR && (
-            <>
-              <TestBox color="blue" position={[0.1, 1, -0.3]} />
+        <PointerStateProvider>
+          {startXR && <Dashboard />}
 
-              <TestBox position={[-0.1, 1, -0.3]} />
-            </>
-          )}
-
-          <ImmersiveSessionOrigin>
+          <Physics
+            colliders={false}
+            gravity={[0, -0.5, 0]}
+            interpolate={false}
+            timeStep={"vary"}
+            debug
+          >
+            {/* Putting this here so the blocks only load in once the user starts AR */}
             {startXR && (
-              <MeshesAndPlanesProvider>
-                <BuildRoom />
-              </MeshesAndPlanesProvider>
+              <>
+                <TestBox color="blue" position={[0.1, 1, -0.3]} />
+
+                <TestBox position={[-0.1, 1, -0.3]} />
+              </>
             )}
-            <Hands type="grab" />
-            <Controllers type="pointer" />
-          </ImmersiveSessionOrigin>
-        </Physics>
+
+            <ImmersiveSessionOrigin>
+              {startXR && (
+                <MeshesAndPlanesProvider>
+                  <BuildRoom />
+                </MeshesAndPlanesProvider>
+              )}
+              <Hands type="grab" />
+              {/* <Controllers type="pointer" /> */}
+
+              {inputSources.map((inputSource, index) => (
+                <AdjustablePointerController
+                  id={getInputSourceId(inputSource)}
+                  key={getInputSourceId(inputSource)}
+                  inputSource={inputSource}
+                />
+              ))}
+            </ImmersiveSessionOrigin>
+          </Physics>
+        </PointerStateProvider>
       </XRCanvas>
       <button
         className="p-4 absolute top-4 left-4 bg-black rounded-md shadow-md text-white"

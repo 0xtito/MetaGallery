@@ -14,6 +14,8 @@ import { isXIntersection } from "@coconut-xr/xinteraction";
 
 import { GrabProps } from "@/utils/types";
 import { usePointerContext } from "@/components/client/providers";
+import { useInputSources } from "@coconut-xr/natuerlich/react";
+import useInputReader from "@/hooks/useInputReader";
 
 const GrabPhysics = forwardRef(
   (
@@ -23,6 +25,7 @@ const GrabPhysics = forwardRef(
     const downState = useRef<{
       pointerId: number;
       pointToObjectOffset: Vector3;
+      zPosition: number;
       positions: Vector3[];
       timestamps: number[];
     }>();
@@ -43,10 +46,13 @@ const GrabPhysics = forwardRef(
           ) {
             e.stopPropagation();
             (e.target as HTMLElement).setPointerCapture(e.pointerId);
-            console.log("ref.current.position", ref.current.position);
+
+            // const activePointer = pointers.left.heldObject ?? pointers.right.heldObject;
+
             downState.current = {
               pointerId: e.pointerId,
               pointToObjectOffset: ref.current.position.clone().sub(e.point),
+              zPosition: e.point.z,
               positions: [],
               timestamps: [],
             };
@@ -85,10 +91,22 @@ const GrabPhysics = forwardRef(
           ) {
             return;
           }
+          let handness: "left" | "right" | undefined;
+          if (pointers.left.heldObject?.uuid == ref.current.uuid) {
+            console.log("left pointer is holding", ref.current.name);
+            handness = "left";
+          } else if (pointers.right.heldObject?.uuid == ref.current.uuid) {
+            console.log("right pointer is holding", ref.current.name);
+            handness = "right";
+          }
 
-          // console.log("onPointerMove - e.point: ", e.point);
+          const controllerPosition =
+            pointers[handness ?? "left"].controllerPosition;
 
-          // console.log("onPointerMove - e.point.ray: ", e.);
+          console.log(
+            `controllerPosition for ${handness}: `,
+            controllerPosition
+          );
 
           handleGrab(e);
           const timeStamp = new Date().getTime();
