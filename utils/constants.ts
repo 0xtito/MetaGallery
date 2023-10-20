@@ -1,4 +1,4 @@
-import { PlaneTypes } from "./types";
+import { PlaneTypes, Pointers } from "@/utils/types";
 
 export const DEFAULT_PLANE_STRUCTURE: Record<PlaneTypes, XRPlane[]> = {
   desk: [],
@@ -23,6 +23,23 @@ export const DEFAULT_MESH_STRUCTURE: Record<PlaneTypes, XRMesh[]> = {
   table: [],
   other: [],
 };
+
+export const initialPointerState: Pointers = {
+  left: {
+    z: 0,
+    state: "NOT_SET",
+    heldObject: null,
+  },
+  right: {
+    z: 0,
+    state: "NOT_SET",
+    heldObject: null,
+  },
+};
+
+export const DEMO_NFT_URL =
+  "https://dl.openseauserdata.com/cache/originImage/files/feb1cb3253570179744438bb08eb569c.jpg";
+
 export const three_colors = {
   aliceblue: "#f0f8ff",
   antiquewhite: "#faebd7",
@@ -173,6 +190,3 @@ export const three_colors = {
   yellow: "#ffff00",
   yellowgreen: "#9acd32",
 };
-
-export const DEMO_NFT_URL =
-  "https://dl.openseauserdata.com/cache/originImage/files/feb1cb3253570179744438bb08eb569c.jpg";

@@ -1,8 +1,17 @@
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import type { XCameraRayIntersection } from "@coconut-xr/xinteraction";
 import type { ThreeEvent } from "@react-three/fiber";
-import type { Vector3 } from "three";
+import type {
+  Vector3,
+  Quaternion,
+  Mesh,
+  BufferGeometry,
+  NormalBufferAttributes,
+  Material,
+  Object3DEventMap,
+} from "three";
 import type { ButtonState } from "@coconut-xr/natuerlich/react";
+import type { RapierRigidBody } from "@react-three/rapier";
 
 export type PlaneTypes =
   | "desk"
@@ -81,3 +90,47 @@ export interface ControllerReaderState {
 export type ButtonsObjType = Record<ButtonsType, ButtonState>;
 
 export type ControllerReaderReturn = [ControllerReaderState, XRHandedness];
+
+export interface ControllerState {
+  visible: boolean;
+  position: Vector3;
+  orientation: Quaternion;
+}
+
+export type TriggerState = ButtonState | "NOT_SET";
+
+export type PointerState = {
+  z: number;
+  state: TriggerState;
+  heldObject: { uuid: string; name?: string } | null;
+  controllerState?: ControllerState | null;
+};
+
+export type Pointers = {
+  left: PointerState;
+  right: PointerState;
+};
+
+export type ControllerStateContextValue = {
+  pointers: Pointers;
+  leftController: ControllerState | null;
+  rightController: ControllerState | null;
+  setLeftPointer: (data: PointerState) => void;
+  setRightPointer: (data: PointerState) => void;
+};
+
+export type useTrackControllersReturn = [
+  ControllerState | null,
+  ControllerState | null
+];
+
+export interface RigidAndMeshRefs {
+  rigidRef: React.RefObject<RapierRigidBody>;
+  ref: React.RefObject<
+    Mesh<
+      BufferGeometry<NormalBufferAttributes>,
+      Material | Material[],
+      Object3DEventMap
+    >
+  >;
+}
