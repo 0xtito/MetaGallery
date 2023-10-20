@@ -16,7 +16,7 @@ import { Physics } from "@react-three/rapier";
 
 import BuildRoom from "@/components/client/xr/BuildRoom";
 import { MeshesAndPlanesProvider } from "@/components/client/providers";
-import PointerStateProvider from "@/components/client/providers/PointerStateProvider";
+import ControllerStateProvider from "@/components/client/providers/ControllerStateProvider";
 import {
   AdjustablePointerController,
   TestBox,
@@ -52,7 +52,7 @@ function WebXRInit() {
       >
         <NonImmersiveCamera position={[-0.5, 1.5, -0.4]} />
 
-        <PointerStateProvider>
+        <ControllerStateProvider>
           {startXR && <Dashboard />}
 
           <Physics
@@ -89,7 +89,7 @@ function WebXRInit() {
               ))}
             </ImmersiveSessionOrigin>
           </Physics>
-        </PointerStateProvider>
+        </ControllerStateProvider>
       </XRCanvas>
       <button
         className="p-4 absolute top-4 left-4 bg-black rounded-md shadow-md text-white"

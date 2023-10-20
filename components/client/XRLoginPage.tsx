@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useContext } from "react";
 
-import { Web3AuthContext } from "@/components/client/providers/Web3AuthProvider";
+import { useSafeAuthContext } from "@/components/client/providers/SafeAuthProvider";
 import WebXRInit from "@/components/client/xr/WebXRInit";
 import { set } from "lodash";
 
@@ -14,7 +14,7 @@ function XRLoginPage() {
     userInfo,
     safeAddress,
     login,
-  } = useContext(Web3AuthContext);
+  } = useSafeAuthContext();
   const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
   const [startXR, setStartXR] = useState<boolean>(false);
 
@@ -49,12 +49,3 @@ function XRLoginPage() {
 }
 
 export default XRLoginPage;
-
-// SIGN IN RESPONSE:
-// {eoa: '0x75B651289042D00EF50e21cE63082fcdc02ba487', safes: Array(0)}
-// eoa
-// :
-// "0x75B651289042D00EF50e21cE63082fcdc02ba487"
-// safes
-// :
-// []

@@ -1,30 +1,23 @@
 "use client";
-import React, { useEffect, useRef } from "react";
-import { Canvas, ThreeEvent, useFrame } from "@react-three/fiber";
+import React from "react";
+import { Canvas } from "@react-three/fiber";
 import {
   Box,
   Text,
   PerspectiveCamera,
   ScrollControls,
-  Scroll,
-  OrbitControls,
-  useProgress,
 } from "@react-three/drei";
 import * as THREE from "three";
 
-// Debuging
 import { useControls } from "leva";
 import { Perf } from "r3f-perf";
 
-import FloatingContainer from "./FloatingContainer";
-import Stars from "./Stars";
+import { FloatingContainer, Island, Stars } from "@/components/client/objects";
 import { wrapText } from "@/utils";
-import Camera from "./Camera";
 import ScrollHandler from "./ScrollHandler";
-import Island from "./objects/Island";
-import LoadingProvider from "./providers/LoadingAssetsProvider";
-import LoadingScreen from "./landingPage/LoadingScreen";
-import LoadingButton from "./landingPage/LoadingButton";
+import { LoadingAssetsProvider } from "@/components/client/providers";
+
+import LoadingScreen from "@/components/client/landingPage/LoadingScreen";
 
 type LandRefType = {
   landRef: React.MutableRefObject<
@@ -142,9 +135,6 @@ function Scene() {
   const stop3 = React.useMemo(() => new THREE.Vector3(0, 0, -408), []);
 
   const handleWheel = (event: React.WheelEvent) => {
-    // console.log("hi");
-    // console.log(event.deltaY);
-    // console.log(cameraRef.current.position);s
     cameraRef.current.position.z += event.deltaY * 0.02;
     setCameraPosition((curValues) => ({
       ...curValues,
@@ -227,7 +217,7 @@ function Scene() {
         onWheel={handleWheel}
         flat
       >
-        <LoadingProvider>
+        <LoadingAssetsProvider>
           {showLoadingScreen && (
             <LoadingScreen
               showLoadingScreen={showLoadingScreen}
@@ -249,13 +239,6 @@ function Scene() {
                 position={[0, 0, cameraPosition.z]}
                 makeDefault
               />
-              {/* <Camera ref={cameraRef} /> */}
-
-              {/* <OrbitControls
-              // ref={cameraRef}
-              position={new THREE.Vector3(position.x, position.y, position.z)}
-              makeDefault
-            /> */}
 
               {/* Fog */}
               <fogExp2 args={[0xff00ff, 0.8]} />
@@ -359,18 +342,12 @@ function Scene() {
                   <meshStandardMaterial color="brown" />
                 </Box>
               </group>
-              {/* </Scroll> */}
-              {/* </Scroll> */}
             </ScrollHandler>
           </ScrollControls>
-
-          {/* Light */}
-          {/* <ambientLight intensity={0.5} /> */}
-        </LoadingProvider>
+        </LoadingAssetsProvider>
       </Canvas>
     </>
-    // </div>
   );
 }
 
-export default React.forwardRef(Scene);
+export default Scene;

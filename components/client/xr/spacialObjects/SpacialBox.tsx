@@ -2,10 +2,10 @@
 
 import React, { useRef } from "react";
 import { TrackedMesh } from "@coconut-xr/natuerlich/react";
-import type { Mesh } from "three";
 import { RapierRigidBody, RigidBody } from "@react-three/rapier";
 
 import { SpacialBoxProps } from "@/utils/types";
+import type { Mesh } from "three";
 
 function SpacialBox({ mesh, color, name, mass = 1 }: SpacialBoxProps) {
   const ref = useRef<Mesh>(null);
@@ -19,7 +19,6 @@ function SpacialBox({ mesh, color, name, mass = 1 }: SpacialBoxProps) {
         colliders={"trimesh"}
         canSleep={false}
         type={"fixed"}
-        // onCollisionEnter={(e) => console.log(e)}
       >
         <TrackedMesh ref={ref} mesh={mesh}>
           {color ? (

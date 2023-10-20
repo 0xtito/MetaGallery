@@ -1,6 +1,6 @@
 "use client";
 
-import useHover from "@/hooks/useHover";
+import { useHover } from "@/hooks";
 
 import CardMesh from "@/components/client/xr/objects/InterfaceCard";
 
