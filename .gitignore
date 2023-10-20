@@ -36,3 +36,7 @@ next-env.d.ts
 
 # certificates
 certificates
+
+# environment variables
+.env.development
+.env.production
