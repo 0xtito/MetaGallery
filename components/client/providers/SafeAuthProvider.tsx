@@ -24,7 +24,8 @@ import {
 import { Web3AuthEventListener } from "@safe-global/auth-kit";
 import { ethers } from "ethers";
 
-interface Web3AuthContextProps {
+// may need to adjust
+interface SafeAuthContextProps {
   web3AuthModalPack?: Web3AuthModalPack;
   safeAuthSignInResponse?: AuthKitSignInData | null;
   web3Provider?: ethers.providers.Web3Provider;
@@ -33,11 +34,21 @@ interface Web3AuthContextProps {
   login: (() => Promise<void>) | null;
 }
 
-export const Web3AuthContext = React.createContext<Web3AuthContextProps>({
+const SafeAuthContext = React.createContext<SafeAuthContextProps>({
   login: null,
 });
 
-function Web3AuthProvider({ children }: { children: React.ReactNode }) {
+export const useSafeAuthContext = (): SafeAuthContextProps => {
+  const context = React.useContext(SafeAuthContext);
+  if (!context) {
+    throw new Error(
+      "useWeb3AuthContext must be used within a Web3AuthProvider"
+    );
+  }
+  return context;
+};
+
+function SafeAuthProvider({ children }: { children: React.ReactNode }) {
   const [web3AuthModalPack, setWeb3AuthModalPack] =
     useState<Web3AuthModalPack>();
   const [safeAuthSignInResponse, setSafeAuthSignInResponse] =
@@ -135,16 +146,6 @@ function Web3AuthProvider({ children }: { children: React.ReactNode }) {
     handleWeb3Auth();
   }, []);
 
-  //   useEffect(() => {
-  //     const handleLogin = async () => {
-  //       await login();
-  //     };
-
-  //     if (web3AuthModalPack && web3AuthModalPack.getProvider()) {
-  //       handleLogin();
-  //     }
-  //   }, [web3AuthModalPack]);
-
   const login = React.useCallback(async () => {
     if (!web3AuthModalPack) return;
 
@@ -231,10 +232,10 @@ function Web3AuthProvider({ children }: { children: React.ReactNode }) {
   ]);
 
   return (
-    <Web3AuthContext.Provider value={values}>
+    <SafeAuthContext.Provider value={values}>
       {children}
-    </Web3AuthContext.Provider>
+    </SafeAuthContext.Provider>
   );
 }
 
-export default Web3AuthProvider;
+export default SafeAuthProvider;

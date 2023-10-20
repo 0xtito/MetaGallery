@@ -1,5 +1,5 @@
 import React, { Ref } from "react";
-import { useFrame, useThree, ThreeEvent } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 // @ts-ignore
 import fragment from "@/shaders/FloatingContainer/fragment.glsl";
@@ -16,7 +16,6 @@ function FloatingContainer(
   { children, position }: FloatingContainerProps,
   ref: Ref<THREE.Mesh>
 ) {
-  // const containerRef = React.useRef<THREE.Mesh>(null!);
   const containerRef = ref as React.MutableRefObject<THREE.Mesh>;
 
   const { size } = useThree();

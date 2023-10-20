@@ -1,17 +1,15 @@
 "use client";
-import { Transition } from "@headlessui/react";
-import LoadingPageText from "./LandPageText";
-import { useContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 import { cn } from "@/utils";
-import { LoadingAssetsContext } from "../providers/LoadingAssetsProvider";
+import { useLoadingAssetsContext } from "@/components/client/providers/LoadingAssetsProvider";
 
-function LoadingButton({
+function LoadingPageButton({
   setShowLoadingScreen,
 }: {
   setShowLoadingScreen: (value: boolean) => void;
 }) {
-  const { total, loaded } = useContext(LoadingAssetsContext);
+  const { total, loaded } = useLoadingAssetsContext();
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -45,4 +43,4 @@ function LoadingButton({
   );
 }
 
-export default LoadingButton;
+export default LoadingPageButton;

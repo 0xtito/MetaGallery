@@ -9,7 +9,7 @@ import {
   useMemo,
   useCallback,
 } from "react";
-import { Group, Mesh, Vector3 } from "three";
+import { Group, Vector3 } from "three";
 import { useFrame } from "@react-three/fiber";
 import { XLinesIntersection } from "@coconut-xr/xinteraction";
 import {
@@ -24,12 +24,10 @@ import {
   ButtonState,
 } from "@coconut-xr/natuerlich/react";
 
-import { usePointerContext } from "@/components/client/providers/PointerStateProvider";
-import { MeshesAndPlanesContext } from "@/components/client/providers";
-import useInputReader from "@/hooks/useInputReader";
-import { ButtonsType } from "@/utils/types";
-
-type TriggerState = ButtonState | "NOT_SET";
+import { useControllerStateContext } from "@/components/client/providers/ControllerStateProvider";
+import { useMeshesAndPlanesContext } from "@/components/client/providers/MeshesAndPlanesProvider";
+import { useInputReader } from "@/hooks";
+import { ButtonsType, TriggerState } from "@/utils/types";
 
 const rayMaterial = new RayBasicMaterial({
   transparent: true,
@@ -61,17 +59,17 @@ function AdjustablePointerController({
   } | null>(null);
   const controllerRef = useRef<Group>(null);
 
-  const { meshes, planes } = useContext(MeshesAndPlanesContext);
-  const { pointers, setLeftPointer, setRightPointer } = usePointerContext();
+  const { meshes, planes } = useMeshesAndPlanesContext();
+  const { pointers, setLeftPointer, setRightPointer } =
+    useControllerStateContext();
 
   const pointerPoints = useMemo(
     () => [INITIAL_POINT, new Vector3(0, 0, -rayLength)],
     [rayLength]
   );
+  const rayOffset = useMemo(() => rayLength * 0.5, [rayLength]);
 
   const [controllerState, handedness] = useInputReader(inputSource);
-
-  const rayOffset = rayLength * 0.5;
 
   const updatePointerState = useCallback(
     (
@@ -181,6 +179,7 @@ function AdjustablePointerController({
     const activePointer = isRight ? pointers.right : pointers.left;
     const capturedObject = intersection[0].capturedObject;
 
+    // to avoid unnecessary re-renders
     if (
       !activePointer.heldObject ||
       capturedObject.uuid !== activePointer.heldObject.uuid
@@ -199,20 +198,14 @@ function AdjustablePointerController({
           z: -rayLength,
           state: pointers.right.state,
           heldObject,
-          controllerPosition: controllerRef.current?.position || null,
-
-          // heldObject: pointers.right.heldObject,
         })
       : setLeftPointer({
           z: -rayLength,
           state: pointers.left.state,
           heldObject,
-          controllerPosition: controllerRef.current?.position || null,
-          // heldObject: pointers.left.heldObject,
         });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rayLength, heldObject]);
-  // }, [rayLength]);
 
   useEffect(() => {
     if (handedness === "left") {
@@ -220,7 +213,6 @@ function AdjustablePointerController({
         z: -rayLength,
         state: ButtonState.DEFAULT,
         heldObject,
-        controllerPosition: controllerRef.current?.position || null,
       });
     }
 
@@ -229,23 +221,10 @@ function AdjustablePointerController({
         z: -rayLength,
         state: ButtonState.DEFAULT,
         heldObject,
-        controllerPosition: controllerRef.current?.position || null,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // useEffect(() => {
-  //   console.log(
-  //     `world position of the ${handedness} controller:`,
-  //     controllerRef.current?.getWorldPosition(controllerRef.current.position)
-  //   );
-  //   console.log(
-  //     "controllerRef.current?.position",
-  //     controllerRef.current?.position
-  //   );
-  //   console.log("controllerRef.current?", controllerRef.current);
-  // }, [pointers]);
 
   return (
     <>

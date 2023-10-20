@@ -1,18 +1,27 @@
 "use client";
 
-import { createContext, useEffect, useMemo } from "react";
+import { createContext, useContext, useMemo } from "react";
 import { useGLTF, useTexture, useProgress } from "@react-three/drei";
-import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
-import * as THREE from "three";
+import { DefaultLoadingManager } from "three";
 
 import { LoadingAssetsContextProps } from "@/utils/types";
 
-export const LoadingAssetsContext = createContext<LoadingAssetsContextProps>({
+const LoadingAssetsContext = createContext<LoadingAssetsContextProps>({
   loadingAlpha: 1,
   item: "",
   loaded: 0,
   total: 0,
 });
+
+export const useLoadingAssetsContext = (): LoadingAssetsContextProps => {
+  const context = useContext(LoadingAssetsContext);
+  if (!context) {
+    throw new Error(
+      "useLoadingAssetsContext must be used within a LoadingAssetsProvider"
+    );
+  }
+  return context;
+};
 
 function LoadingAssetsProvider({ children }: { children: React.ReactNode }) {
   useGLTF.preload("/assets/island/land_final.glb");
@@ -30,13 +39,9 @@ function LoadingAssetsProvider({ children }: { children: React.ReactNode }) {
     return active ? progress : 0;
   }, [active, progress]);
 
-  useEffect(() => {
-    console.log({ active, progress, errors, item, loaded, total });
-  }, [active, loaded]);
+  DefaultLoadingManager.onLoad = () => {};
 
-  THREE.DefaultLoadingManager.onLoad = () => {};
-
-  THREE.DefaultLoadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {};
+  DefaultLoadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {};
 
   const values = useMemo(() => {
     return {
@@ -51,9 +56,9 @@ function LoadingAssetsProvider({ children }: { children: React.ReactNode }) {
     };
   }, [item, loaded]);
 
-  useEffect(() => {
-    console.log(values);
-  }, []);
+  // useEffect(() => {
+  //   console.log(values);
+  // }, []);
 
   return (
     <LoadingAssetsContext.Provider value={values}>

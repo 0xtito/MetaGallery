@@ -1,21 +1,25 @@
 "use client";
 
-import React, { useContext, Suspense, useState } from "react";
+import React from "react";
 import { getMeshId, getPlaneId } from "@coconut-xr/natuerlich";
-import { MeshesAndPlanesContext } from "../providers";
+
 import {
   SpacialBox,
   SpacialPlane,
 } from "@/components/client/xr/spacialObjects";
-
+import { useMeshesAndPlanesContext } from "@/components/client/providers/MeshesAndPlanesProvider";
 import { three_colors } from "@/utils/constants";
 
 function BuildRoom() {
-  const { meshes, planes, isLoading } = useContext(MeshesAndPlanesContext);
+  const { meshes, planes, isLoading } = useMeshesAndPlanesContext();
 
   if ((!meshes || !planes) && !isLoading) {
     return null;
   }
+
+  /**
+   * Need to better test how planes and meshes from webXR are structured
+   */
 
   return (
     <>
@@ -31,7 +35,6 @@ function BuildRoom() {
                   <SpacialPlane
                     name={name}
                     plane={plane}
-                    orientation={plane.orientation}
                     key={getPlaneId(plane)}
                     color={color}
                   />
@@ -55,6 +58,7 @@ function BuildRoom() {
               {meshes.map((mesh) => {
                 return (
                   <SpacialBox
+                    name={name}
                     mesh={mesh}
                     key={`${getMeshId(mesh)}`}
                     color={color}

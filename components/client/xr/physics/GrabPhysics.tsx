@@ -1,27 +1,18 @@
 "use client";
 
-import React, {
-  forwardRef,
-  useRef,
-  Ref,
-  MutableRefObject,
-  useMemo,
-  ForwardedRef,
-} from "react";
-import type { Vector3, Mesh } from "three";
-import type { ThreeEvent } from "@react-three/fiber";
+import React, { forwardRef, useRef, MutableRefObject, useMemo } from "react";
+import { Vector3, Mesh } from "three";
 import { isXIntersection } from "@coconut-xr/xinteraction";
+import { vec3 } from "@react-three/rapier";
 
-import { GrabProps } from "@/utils/types";
-import { usePointerContext } from "@/components/client/providers";
-import { useInputSources } from "@coconut-xr/natuerlich/react";
-import useInputReader from "@/hooks/useInputReader";
+import { useControllerStateContext } from "@/components/client/providers/ControllerStateProvider";
 
-const GrabPhysics = forwardRef(
-  (
-    { children, handleGrab, handleRelease, name }: GrabProps,
-    meshRef: ForwardedRef<Mesh>
-  ) => {
+import type { ThreeEvent } from "@react-three/fiber";
+import type { RapierRigidBody } from "@react-three/rapier";
+import { RigidAndMeshRefs, GrabProps } from "@/utils/types";
+
+const GrabPhysics = forwardRef<RigidAndMeshRefs, GrabProps>(
+  ({ children, handleGrab, handleRelease, name }, rigidAndMeshRef) => {
     const downState = useRef<{
       pointerId: number;
       pointToObjectOffset: Vector3;
@@ -29,34 +20,75 @@ const GrabPhysics = forwardRef(
       positions: Vector3[];
       timestamps: number[];
     }>();
-    const maxEntries = useMemo(() => 5, []);
-    const ref = useMemo(() => meshRef as MutableRefObject<Mesh>, [meshRef]);
 
-    const { pointers } = usePointerContext();
+    const rigidRef = useMemo(
+      () =>
+        // @ts-expect-error
+        rigidAndMeshRef!.current?.rigidRef as MutableRefObject<RapierRigidBody>,
+      [rigidAndMeshRef]
+    );
+
+    const meshRef = useMemo(
+      // @ts-expect-error
+      () => rigidAndMeshRef!.current?.ref as MutableRefObject<Mesh>,
+      [rigidAndMeshRef]
+    );
+
+    const maxEntries = useMemo(() => 5, []);
+    const { pointers, leftController, rightController } =
+      useControllerStateContext();
+
+    const adjustPositionByThumbstick = (
+      handness: "left" | "right",
+      e: ThreeEvent<PointerEvent>
+    ) => {
+      if (!rigidRef?.current) return;
+
+      const currentPointerState = pointers[handness];
+
+      const controllerPosition =
+        handness == "left"
+          ? leftController?.position
+          : rightController?.position;
+
+      if (controllerPosition) {
+        const rayDirection = new Vector3()
+          .subVectors(e.point, controllerPosition)
+          .normalize();
+        console.log("rayDirection", rayDirection);
+        const offset = currentPointerState.z;
+
+        const adjustedPosition = new Vector3().addVectors(
+          controllerPosition,
+          rayDirection.multiplyScalar(-offset)
+        );
+
+        rigidRef.current.setTranslation(vec3(adjustedPosition), true);
+      }
+    };
 
     return (
       <mesh
         name={name ?? ""}
-        ref={ref}
+        ref={meshRef}
         onPointerDown={(e) => {
           if (
-            ref.current != null &&
+            meshRef.current != null &&
             downState.current == null &&
             isXIntersection(e)
           ) {
             e.stopPropagation();
             (e.target as HTMLElement).setPointerCapture(e.pointerId);
 
-            // const activePointer = pointers.left.heldObject ?? pointers.right.heldObject;
-
             downState.current = {
               pointerId: e.pointerId,
-              pointToObjectOffset: ref.current.position.clone().sub(e.point),
+              pointToObjectOffset: meshRef.current.position
+                .clone()
+                .sub(e.point),
               zPosition: e.point.z,
               positions: [],
               timestamps: [],
             };
-            //   rigidRef.current?.setTranslation(vec3(e.point), true);
             handleGrab(e);
           }
         }}
@@ -65,13 +97,11 @@ const GrabPhysics = forwardRef(
             return;
           }
           if (downState.current.positions.length > 1) {
-            console.log("downState positions", downState.current.positions);
-            console.log("downState timestamps", downState.current.timestamps);
             const lastIndex = downState.current.positions.length - 1;
             const deltaTime =
               (downState.current.timestamps[lastIndex] -
                 downState.current.timestamps[0]) /
-              1000; // in seconds
+              1000;
             const deltaPosition = downState.current.positions[lastIndex]
               .clone()
               .sub(downState.current.positions[0]);
@@ -84,7 +114,7 @@ const GrabPhysics = forwardRef(
         }}
         onPointerMove={(e) => {
           if (
-            ref.current == null ||
+            meshRef.current == null ||
             downState.current == null ||
             // e.pointerId != downState.current.pointerId ||
             !isXIntersection(e)
@@ -92,23 +122,13 @@ const GrabPhysics = forwardRef(
             return;
           }
           let handness: "left" | "right" | undefined;
-          if (pointers.left.heldObject?.uuid == ref.current.uuid) {
-            console.log("left pointer is holding", ref.current.name);
+
+          if (pointers.left.heldObject?.uuid == meshRef.current.uuid) {
             handness = "left";
-          } else if (pointers.right.heldObject?.uuid == ref.current.uuid) {
-            console.log("right pointer is holding", ref.current.name);
+          } else if (pointers.right.heldObject?.uuid == meshRef.current.uuid) {
             handness = "right";
           }
 
-          const controllerPosition =
-            pointers[handness ?? "left"].controllerPosition;
-
-          console.log(
-            `controllerPosition for ${handness}: `,
-            controllerPosition
-          );
-
-          handleGrab(e);
           const timeStamp = new Date().getTime();
           downState.current.positions.push(e.point);
           downState.current.timestamps.push(timeStamp);
@@ -116,6 +136,10 @@ const GrabPhysics = forwardRef(
           if (downState.current.positions.length > maxEntries) {
             downState.current.positions.shift();
             downState.current.timestamps.shift();
+          }
+
+          if (handness) {
+            adjustPositionByThumbstick(handness, e);
           }
         }}
       >

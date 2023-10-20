@@ -10,7 +10,7 @@ import { useThree } from "@react-three/fiber";
 import fragment from "@/shaders/landingPage/fragment.glsl";
 // @ts-ignore
 import vertex from "@/shaders/landingPage/vertex.glsl";
-import { LoadingAssetsContext } from "../providers/LoadingAssetsProvider";
+import { useLoadingAssetsContext } from "@/components/client/providers/LoadingAssetsProvider";
 
 function LoadingScreen({
   setShowLoadingScreen,
@@ -19,7 +19,7 @@ function LoadingScreen({
   setShowLoadingScreen: (value: boolean) => void;
   showLoadingScreen: boolean;
 }) {
-  const { total, loaded } = useContext(LoadingAssetsContext);
+  const { total, loaded } = useLoadingAssetsContext();
 
   const MyShaderMaterial = (
     <shaderMaterial

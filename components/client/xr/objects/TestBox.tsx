@@ -1,28 +1,19 @@
 "use client";
 
 import React, { useRef } from "react";
-import {
-  RapierRigidBody,
-  RigidBody,
-  euler,
-  quat,
-  vec3,
-} from "@react-three/rapier";
+import { RapierRigidBody, RigidBody, vec3 } from "@react-three/rapier";
 import { ThreeEvent } from "@react-three/fiber";
-import { useInputSources } from "@coconut-xr/natuerlich/react";
 
 import type { Mesh, Vector3 } from "three";
-import GrabPhysics from "../physics/GrabPhysics";
+import { GrabPhysics } from "@/components/client/xr/physics";
 
 function TestBox(props: any) {
   const rigidRef = useRef<RapierRigidBody>(null);
-
-  const inputSources = useInputSources();
   const ref = useRef<Mesh>(null);
-  const downState = useRef<{
-    pointerId: number;
-    pointToObjectOffset: Vector3;
-  }>();
+  const rigidAndMeshRef = useRef({
+    rigidRef: rigidRef,
+    ref: ref,
+  });
 
   const handleGrab = (e: ThreeEvent<PointerEvent>) => {
     if (rigidRef.current) {
@@ -31,8 +22,6 @@ function TestBox(props: any) {
       rigidRef.current.resetForces(true);
       rigidRef.current.setAngvel(vec3({ x: 0, y: 0, z: 0 }), true);
       rigidRef.current.setGravityScale(0, true);
-
-      // rigidRef.current.ta
     } else {
       console.log("rigidRef.current is not set");
     }
@@ -41,7 +30,6 @@ function TestBox(props: any) {
   const handleRelease = (e: ThreeEvent<PointerEvent>, velocity?: Vector3) => {
     if (rigidRef.current) {
       rigidRef.current?.setGravityScale(1, true);
-      console.log("velocity", velocity);
       rigidRef.current.setLinvel(vec3(velocity), true);
     } else {
       console.log("rigidRef.current is not set");
@@ -61,7 +49,8 @@ function TestBox(props: any) {
     >
       <GrabPhysics
         name={"testBox"}
-        ref={ref}
+        // ref={ref}
+        ref={rigidAndMeshRef}
         handleGrab={handleGrab}
         handleRelease={handleRelease}
       >
