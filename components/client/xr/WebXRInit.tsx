@@ -15,8 +15,10 @@ import { getInputSourceId } from "@coconut-xr/natuerlich";
 import { Physics } from "@react-three/rapier";
 
 import BuildRoom from "@/components/client/xr/BuildRoom";
-import { MeshesAndPlanesProvider } from "@/components/client/providers";
-import ControllerStateProvider from "@/components/client/providers/ControllerStateProvider";
+import {
+  MeshesAndPlanesProvider,
+  ControllerStateProvider,
+} from "@/components/client/providers";
 import {
   AdjustablePointerController,
   TestBox,
@@ -29,6 +31,7 @@ const sessionOptions: XRSessionInit = {
     "hit-test",
     "mesh-detection",
     "plane-detection",
+    "anchors",
   ],
 };
 
@@ -77,6 +80,7 @@ function WebXRInit() {
                   <BuildRoom />
                 </MeshesAndPlanesProvider>
               )}
+
               <Hands type="grab" />
               {/* <Controllers type="pointer" /> */}
 

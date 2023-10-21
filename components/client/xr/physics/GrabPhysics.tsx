@@ -16,6 +16,7 @@ import { useControllerStateContext } from "@/components/client/providers/Control
 import type { ThreeEvent } from "@react-three/fiber";
 import type { RapierRigidBody } from "@react-three/rapier";
 import { RigidAndMeshRefs, GrabProps } from "@/utils/types";
+import { useTrackControllers } from "@/hooks";
 
 const GrabPhysics = forwardRef<RigidAndMeshRefs, GrabProps>(
   (
@@ -45,8 +46,8 @@ const GrabPhysics = forwardRef<RigidAndMeshRefs, GrabProps>(
     );
 
     const maxEntries = useMemo(() => 5, []);
-    const { pointers, leftController, rightController } =
-      useControllerStateContext();
+    const [leftController, rightController] = useTrackControllers();
+    const { pointers } = useControllerStateContext();
 
     const adjustPositionByThumbstick = useCallback(
       (handness: "left" | "right", e: ThreeEvent<PointerEvent>) => {

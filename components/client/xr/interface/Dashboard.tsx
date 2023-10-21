@@ -7,12 +7,10 @@ import {
   Text,
   Object,
   DefaultStyleProvider,
+  tailwindAPI,
 } from "@coconut-xr/koestlich";
 import {
-  Button,
   Glass,
-  IconButton,
-  Fonts,
   TabBar,
   TabBarItem,
   ActivityIndicator,
@@ -40,8 +38,6 @@ function Dashboard() {
     <Grabbable position={[-0.5, 1.5, -0.5]}>
       <RootContainer
         flexDirection="row"
-        // alignItems="center"
-        // maxHeight={"100%"}
         gapColumn={32}
         pixelSize={0.001}
         precision={1}
@@ -49,32 +45,20 @@ function Dashboard() {
         <Container flexDirection="row" alignItems={"center"}>
           <Glass borderRadius={32} padding={8} height={"32%"}>
             <TabBar defaultValue={1} flexGrow={1}>
-              <TabBarItem
-                // onClick={() => setActiveTab(1)}
-                value={1}
-                icon={<Home />}
-              >
+              <TabBarItem value={1} icon={<Home />}>
                 <Text>Home</Text>
               </TabBarItem>
-              <TabBarItem
-                value={2}
-                // onClick={() => setActiveTab(2)}
-                icon={<ShoppingCart />}
-              >
+              <TabBarItem value={2} icon={<ShoppingCart />}>
                 <Text>Market</Text>
               </TabBarItem>
             </TabBar>
           </Glass>
         </Container>
-        {/* <Container> */}
         <Glass borderRadius={32} padding={8}>
-          {/* <DefaultStyleProvider color="white"> */}
           <Suspense fallback={<ActivityIndicator size="lg" />}>
             <Inventory />
           </Suspense>
-          {/* </DefaultStyleProvider> */}
         </Glass>
-        {/* </Container> */}
       </RootContainer>
     </Grabbable>
   );

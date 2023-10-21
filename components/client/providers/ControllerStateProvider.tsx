@@ -2,7 +2,6 @@
 
 import React, { useContext, useState, useCallback, useMemo } from "react";
 
-import { useTrackControllers } from "@/hooks";
 import { initialPointerState } from "@/utils/constants";
 
 import { PointerState, ControllerStateContextValue } from "@/utils/types";
@@ -20,8 +19,6 @@ export const useControllerStateContext = (): ControllerStateContextValue => {
 };
 
 function ControllerStateProvider({ children }: { children: React.ReactNode }) {
-  const [leftController, rightController] = useTrackControllers();
-
   const [pointers, setPointers] = useState(initialPointerState);
 
   const setLeftPointer = useCallback((data: PointerState) => {
@@ -41,18 +38,10 @@ function ControllerStateProvider({ children }: { children: React.ReactNode }) {
   const values = useMemo(() => {
     return {
       pointers,
-      leftController,
-      rightController,
       setLeftPointer,
       setRightPointer,
     };
-  }, [
-    pointers,
-    setLeftPointer,
-    setRightPointer,
-    leftController,
-    rightController,
-  ]);
+  }, [pointers, setLeftPointer, setRightPointer]);
 
   return (
     <ControllerStateContext.Provider value={values}>

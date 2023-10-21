@@ -64,7 +64,6 @@ function AdjustablePointerController({
   const rayOffset = useMemo(() => rayLength * 0.5, [rayLength]);
 
   const [controllerState, handedness] = useInputReader(inputSource);
-  controllerState.buttonsState;
 
   const updatePointerState = useCallback(
     (

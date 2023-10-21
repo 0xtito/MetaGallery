@@ -35,6 +35,8 @@ function useTrackControllers(): useTrackControllersReturn {
   useEffect(() => {
     if (inputSources.length > 0) {
       setInputSourcesInitialized(true);
+    } else {
+      setInputSourcesInitialized(false); // to avoid breaking when controllers are disconnected
     }
   }, [inputSources]);
 

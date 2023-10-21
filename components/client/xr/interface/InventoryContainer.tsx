@@ -18,9 +18,9 @@ import {
 import { GrabPhysics } from "@/components/client/xr/physics";
 
 import { chunkArray } from "@/utils";
-import { nfts } from "@/utils/types";
+import { nft } from "@/utils/types";
 
-function InventoryContainer({ nfts }: { nfts: nfts[] }) {
+function InventoryContainer({ nfts }: { nfts: nft[] }) {
   const chunkedNfts = useMemo(() => chunkArray(nfts, 3), [nfts]);
 
   console.log("nfts", nfts);

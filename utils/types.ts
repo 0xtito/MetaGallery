@@ -150,8 +150,6 @@ export type Pointers = {
 
 export type ControllerStateContextValue = {
   pointers: Pointers;
-  leftController: LeftControllerState | null;
-  rightController: RightControllerState | null;
   setLeftPointer: (data: PointerState) => void;
   setRightPointer: (data: PointerState) => void;
 };

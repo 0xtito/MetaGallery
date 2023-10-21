@@ -10,7 +10,7 @@ import { DEMO_NFT_URL } from "@/utils/constants";
 // import { ActivityIndicator } from "@coconut-xr/apfel-kruemel";
 import { Suspense } from "react";
 
-import { nfts } from "@/utils/types";
+import { nft } from "@/utils/types";
 
 function getUsersNFTs() {
   // Here we will fetch the users NFTs from the database
@@ -26,7 +26,7 @@ function getUsersNFTs() {
   //   console.log("fetched user's nfts");
   // }, 1000);
 
-  const nfts: nfts[] = [
+  const nfts: nft[] = [
     {
       title: "Lonely Nights",
       url: "/assets/demo/lonely_nights.jpeg",
