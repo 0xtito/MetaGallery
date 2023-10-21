@@ -1,7 +1,9 @@
 'use client'
+import { useState, useEffect } from "react";
 import { useSafeAuthContext } from "@/components/client/providers/SafeAuthProvider";
 import * as PushAPI from '@pushprotocol/restapi'
 import { ENV } from '@pushprotocol/restapi/src/lib/constants'
+import { createSocketConnection, EVENTS } from '@pushprotocol/socket';
 
 function TestPush() {
   const {
@@ -12,6 +14,13 @@ function TestPush() {
     safeAddress,
     login,
   } = useSafeAuthContext();
+
+  interface ChatMessage {
+    message: string;
+    sender: string;
+    timestamp?: number;
+  }
+  const [history, setHistory] = useState<ChatMessage[]>([]);
 
   //Send Message
   const sendMessage = async () => {
@@ -37,8 +46,69 @@ function TestPush() {
     console.log(response)
   }
 
+  async function ConnectSocket() {
+    const pushSDKSocket = createSocketConnection({
+      user: `eip155:${safeAuthSignInResponse!.eoa}`,
+      socketType: 'chat',
+      socketOptions: { autoConnect: true, reconnectionAttempts: 3 },
+      env: ENV.PROD,
+    })
+
+    if (!pushSDKSocket) {
+      throw new Error('Socket not connected');
+    }
+
+  const decryptMessage = async (message) => {
+
+    const user = await PushAPI.user.get({
+      account: `eip155:${safeAuthSignInResponse!.eoa}`,
+      env: ENV.PROD
+    });
+
+    const pvtkey = await PushAPI.chat.decryptPGPKey({
+      encryptedPGPPrivateKey: user.encryptedPrivateKey,
+      account: `eip155:${safeAuthSignInResponse!.eoa}`,
+      signer: web3Provider.getSigner(),
+      env: ENV.PROD,
+    });
+
+    const decryptedMessage = await PushAPI.chat.decryptConversation({
+      messages: [message],
+      connectedUser: user,
+      pgpPrivateKey: pvtkey,
+      env: ENV.PROD
+    })
+
+    return decryptedMessage;
+  }
+
+    pushSDKSocket.on(EVENTS.CHAT_RECEIVED_MESSAGE, async (message) => {
+      console.log('Incoming Push Chat message from Socket');
+      console.log(message);
+      const decryptedMessage = await decryptMessage(message);
+      console.log('Decrypted message:', decryptedMessage);
+      
+      setHistory((curHistory) => [...curHistory, 
+          { message: decryptedMessage[0].messageObj.content,
+            sender: decryptedMessage[0].fromDID,
+            timestamp:  decryptedMessage[0].timestamp }
+        ]
+      );
+    });
+  }
+
+  useEffect(() => {
+    console.log('history:', history);
+  }, [history]);
+
   return (
     <>
+      <button
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        onClick={ConnectSocket}
+      >
+        Connect Socket
+      </button>
       <button
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         onClick={sendMessage}
