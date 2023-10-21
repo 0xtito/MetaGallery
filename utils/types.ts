@@ -63,6 +63,7 @@ export interface GrabProps {
   children: React.ReactNode;
   handleGrab: (e: ThreeEvent<PointerEvent>) => void;
   handleRelease: (e: ThreeEvent<PointerEvent>, velocity?: Vector3) => void;
+  isAnchorable?: boolean;
   name?: string;
 }
 
@@ -91,10 +92,46 @@ export type ButtonsObjType = Record<ButtonsType, ButtonState>;
 
 export type ControllerReaderReturn = [ControllerReaderState, XRHandedness];
 
-export interface ControllerState {
+export type GamepadButtonState = {
+  pressed: boolean;
+  touched: boolean;
+  value: number;
+};
+
+interface GamepadBase {
+  axes: readonly number[];
+  buttons: {
+    [key: string]: "pressed" | "touched" | "default";
+  };
+}
+
+interface LeftGamepad extends GamepadBase {
+  buttons: {
+    "x-button": ButtonState;
+    "y-button": ButtonState;
+  };
+}
+
+interface RightGamepad extends GamepadBase {
+  buttons: {
+    "a-button": ButtonState;
+    "b-button": ButtonState;
+  };
+}
+
+interface ControllerState {
   visible: boolean;
   position: Vector3;
   orientation: Quaternion;
+  gamepad: LeftGamepad | RightGamepad;
+}
+
+export interface LeftControllerState extends ControllerState {
+  gamepad: LeftGamepad;
+}
+
+export interface RightControllerState extends ControllerState {
+  gamepad: RightGamepad;
 }
 
 export type TriggerState = ButtonState | "NOT_SET";
@@ -113,15 +150,15 @@ export type Pointers = {
 
 export type ControllerStateContextValue = {
   pointers: Pointers;
-  leftController: ControllerState | null;
-  rightController: ControllerState | null;
+  leftController: LeftControllerState | null;
+  rightController: RightControllerState | null;
   setLeftPointer: (data: PointerState) => void;
   setRightPointer: (data: PointerState) => void;
 };
 
 export type useTrackControllersReturn = [
-  ControllerState | null,
-  ControllerState | null
+  LeftControllerState | null,
+  RightControllerState | null
 ];
 
 export interface RigidAndMeshRefs {

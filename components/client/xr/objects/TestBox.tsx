@@ -50,6 +50,7 @@ function TestBox(props: any) {
       <GrabPhysics
         name={"testBox"}
         // ref={ref}
+        isAnchorable={true}
         ref={rigidAndMeshRef}
         handleGrab={handleGrab}
         handleRelease={handleRelease}

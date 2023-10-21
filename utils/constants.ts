@@ -1,4 +1,4 @@
-import { PlaneTypes, Pointers } from "@/utils/types";
+import { PlaneTypes, Pointers, ButtonsType } from "@/utils/types";
 
 export const DEFAULT_PLANE_STRUCTURE: Record<PlaneTypes, XRPlane[]> = {
   desk: [],
@@ -36,6 +36,13 @@ export const initialPointerState: Pointers = {
     heldObject: null,
   },
 };
+
+export const BUTTONS_TO_CHECK: ButtonsType[] = [
+  "a-button",
+  "b-button",
+  "x-button",
+  "y-button",
+];
 
 export const DEMO_NFT_URL =
   "https://dl.openseauserdata.com/cache/originImage/files/feb1cb3253570179744438bb08eb569c.jpg";

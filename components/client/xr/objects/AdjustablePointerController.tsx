@@ -36,13 +36,7 @@ const rayMaterial = new RayBasicMaterial({
 
 const INITIAL_POINT = new Vector3(0, 0, 0);
 const INITIAL_RAY_LENGTH = 0.01;
-const RAY_ADJUSTMENT_SPEED = 0.5;
-const BUTTONS_TO_CHECK: ButtonsType[] = [
-  "a-button",
-  "b-button",
-  "x-button",
-  "y-button",
-];
+const RAY_ADJUSTMENT_SPEED = 0.6;
 
 function AdjustablePointerController({
   inputSource,
@@ -70,6 +64,7 @@ function AdjustablePointerController({
   const rayOffset = useMemo(() => rayLength * 0.5, [rayLength]);
 
   const [controllerState, handedness] = useInputReader(inputSource);
+  controllerState.buttonsState;
 
   const updatePointerState = useCallback(
     (
@@ -91,12 +86,6 @@ function AdjustablePointerController({
 
   useFrame((state, delta) => {
     let newRayLength = rayLength;
-
-    BUTTONS_TO_CHECK.forEach((button) => {
-      if (controllerState.buttonsState[button] === "pressed") {
-        console.log(`${button} pressed`);
-      }
-    });
 
     const adjustment = RAY_ADJUSTMENT_SPEED * delta;
 
