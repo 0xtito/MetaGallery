@@ -8,6 +8,8 @@ import {
   Object,
   DefaultStyleProvider,
   tailwindAPI,
+  ExtendedThreeEvent,
+  ContainerNode,
 } from "@coconut-xr/koestlich";
 import {
   Glass,
@@ -15,90 +17,104 @@ import {
   TabBarItem,
   ActivityIndicator,
 } from "@coconut-xr/apfel-kruemel";
-import { Suspense, useState, useRef } from "react";
-import { Home, ShoppingCart } from "@coconut-xr/lucide-koestlich";
-
+import React, { Suspense, useState, useRef, useEffect, useMemo } from "react";
+import {
+  Home,
+  ShoppingCart,
+  MessageCircle,
+} from "@coconut-xr/lucide-koestlich";
+import { IconButton } from "@coconut-xr/apfel-kruemel";
 import { Inventory } from "@/components/server/xr";
-import { GrabPhysics } from "@/components/client/xr/physics";
 import { ThreeEvent } from "@react-three/fiber";
-import type { Mesh } from "three";
+import { Mesh, Vector3 } from "three";
 import { Grabbable } from "@coconut-xr/natuerlich/defaults";
+import useButtonListener from "@/hooks/useButtonListener";
+import { useTrackControllers } from "@/hooks";
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState(1);
-  const interfaceRef = useRef<Mesh>(null);
+  // const
+  const [position, setPosition] = useState<Vector3>(
+    new Vector3(-0.5, 1.5, -0.5)
+  );
 
-  const handleGrab = (e: ThreeEvent<PointerEvent>) => {
-    console.log("handleGrab");
+  const interfaceRef = useRef<typeof RootContainer>(null);
+  const isXPressed = useButtonListener("x-button");
+  const isYPressed = useButtonListener("y-button");
+  const [leftController, rightController] = useTrackControllers();
+
+  const memoX = useMemo(() => isXPressed, [isXPressed]);
+  const memoY = useMemo(() => isYPressed, [isYPressed]);
+
+  useEffect(() => {
+    if (memoX && memoY && leftController) {
+      setPosition(leftController.position);
+      // interfaceRef!.current.position = leftController.position;
+    }
+  }, [memoX, memoY]);
+
+  const handleChangeTab = (
+    e: ExtendedThreeEvent<PointerEvent>,
+    newNumber: number
+  ) => {
+    console.log("e", e);
+    if (activeTab !== newNumber) {
+      // console.log("isXPressed", isXPressed);
+      setActiveTab(newNumber);
+    }
   };
 
   const handleRelease = (e: ThreeEvent<PointerEvent>) => {};
 
   return (
-    <Grabbable position={[-0.5, 1.5, -0.5]}>
-      <RootContainer
-        flexDirection="row"
-        gapColumn={32}
-        pixelSize={0.001}
-        precision={1}
-      >
-        <Container flexDirection="column" alignItems="center" gapRow={16}>
-          <TabBar defaultValue={1} flexGrow={1}>
-            <Glass borderRadius={32} padding={8}>
-              <TabBarItem value={1} icon={<Home />}>
-                <Text>Home</Text>
-              </TabBarItem>
-            </Glass>
-            <Glass borderRadius={32} padding={8}>
-              <TabBarItem value={2} icon={<ShoppingCart />}>
-                <Text>Market</Text>
-              </TabBarItem>
-            </Glass>
-            <Glass borderRadius={32} padding={8}>
-              <TabBarItem value={3} icon={<ShoppingCart />}>
-                <Text>Market</Text>
-              </TabBarItem>
-            </Glass>
-          </TabBar>
-        </Container>
-
+    // <Grabbable position={[-0.5, 1.5, -0.5]}>
+    <RootContainer
+      position={position}
+      flexDirection="row"
+      gapColumn={32}
+      pixelSize={0.001}
+      precision={1}
+    >
+      <Container flexDirection="row" alignItems="center" gapRow={16}>
         <Glass borderRadius={32} padding={8}>
-          <Suspense fallback={<ActivityIndicator size="lg" />}>
-            <Inventory />
-          </Suspense>
+          <IconButton
+            size="md"
+            platter
+            selected={activeTab === 1}
+            onPointerDown={(e) => handleChangeTab(e, 1)}
+          >
+            <Home />
+          </IconButton>
         </Glass>
-      </RootContainer>
-    </Grabbable>
-  );
-
-  return (
-    <Grabbable position={[-0.5, 1.5, -0.5]}>
-      <RootContainer
-        flexDirection="row"
-        gapColumn={32}
-        pixelSize={0.001}
-        precision={1}
-      >
-        <Container flexDirection="row" alignItems={"center"}>
-          <Glass borderRadius={32} padding={8} height={"32%"}>
-            <TabBar defaultValue={1} flexGrow={1}>
-              <TabBarItem value={1} icon={<Home />}>
-                <Text>Home</Text>
-              </TabBarItem>
-              <TabBarItem value={2} icon={<ShoppingCart />}>
-                <Text>Market</Text>
-              </TabBarItem>
-            </TabBar>
-          </Glass>
-        </Container>
         <Glass borderRadius={32} padding={8}>
-          <Suspense fallback={<ActivityIndicator size="lg" />}>
-            <Inventory />
-          </Suspense>
+          <IconButton
+            size="md"
+            platter
+            selected={activeTab == 2}
+            onPointerDown={(e) => handleChangeTab(e, 2)}
+          >
+            <ShoppingCart />
+          </IconButton>
         </Glass>
-      </RootContainer>
-    </Grabbable>
+        <Glass borderRadius={32} padding={8}>
+          <IconButton
+            size="md"
+            platter
+            selected={activeTab === 3}
+            onPointerDown={(e) => handleChangeTab(e, 3)}
+          >
+            <MessageCircle />
+          </IconButton>
+        </Glass>
+      </Container>
+
+      <Glass borderRadius={32} padding={8}>
+        <Suspense fallback={<ActivityIndicator size="lg" />}>
+          <Inventory />
+        </Suspense>
+      </Glass>
+    </RootContainer>
   );
 }
 
-export default Dashboard;
+export default React.memo(Dashboard);

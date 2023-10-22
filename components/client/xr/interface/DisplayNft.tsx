@@ -34,6 +34,7 @@ function DisplayNft({ nft, isOwned = true }: DisplayNftProps) {
 
   const isAPressed = useButtonListener("a-button");
   const isBPressed = useButtonListener("b-button");
+  const isXPressed = useButtonListener("x-button");
 
   const handleClick = useCallback(
     (e: ExtendedThreeEvent<PointerEvent>) => {

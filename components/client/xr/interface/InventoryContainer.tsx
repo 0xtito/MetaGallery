@@ -14,7 +14,7 @@ import {
   List,
   ActivityIndicator,
   Glass,
-  Button,
+  IconButton,
 } from "@coconut-xr/apfel-kruemel";
 import { ArrowBigLeft, ArrowBigRight } from "@coconut-xr/lucide-koestlich";
 
@@ -23,13 +23,12 @@ import { GrabPhysics } from "@/components/client/xr/physics";
 import { chunkArray } from "@/utils";
 import { nft } from "@/utils/types";
 import { DisplayNft } from "@/components/client/xr/interface";
+import useButtonListener from "@/hooks/useButtonListener";
 
 function InventoryContainer({ nfts }: { nfts: nft[] }) {
-  const chunkedNfts = useMemo(() => chunkArray(nfts, 2), [nfts]);
-  // const id = useId();
-
-  console.log("nfts", nfts);
-  console.log("chunkedNfts", chunkedNfts);
+  const [activeTab, setActiveTab] = React.useState(0);
+  const chunkedNfts = useMemo(() => chunkArray(nfts, 4), [nfts]);
+  const isXPressed = useButtonListener("x-button");
 
   return (
     <Container
@@ -40,87 +39,64 @@ function InventoryContainer({ nfts }: { nfts: nft[] }) {
       width={"100%"}
       overflow={"hidden"}
     >
-      {chunkedNfts.map(({ nfts, id }, index) => (
-        <Container
-          key={id}
-          flexDirection="row"
-          justifyContent="space-between"
-          gapColumn={12}
-        >
-          {nfts.map((nft) => (
-            <Container
-              key={nft.id}
-              flexGrow={1}
-              backgroundOpacity={0.5}
-              flexDirection="column"
-              alignContent="center"
-              // margin={10}
-              padding={12}
-              // border={0}
-              // border={}
-              borderRadius={12}
-              backgroundColor={"#d1d5db"}
-            >
-              <DefaultStyleProvider color="white">
-                <Suspense fallback={<ActivityIndicator size="lg" />}>
-                  <DisplayNft nft={nft} />
-                </Suspense>
-              </DefaultStyleProvider>
-              <Text>{nft.title}</Text>
-            </Container>
-          ))}
-        </Container>
-      ))}
+      {chunkedNfts.map(({ nfts, id }, index) => {
+        if (index !== activeTab) return null;
+        return (
+          <Container
+            key={id}
+            flexDirection="row"
+            justifyContent="space-between"
+            gapColumn={12}
+          >
+            {nfts.map((nft) => (
+              <Container
+                key={nft.id}
+                flexGrow={1}
+                backgroundOpacity={0.5}
+                flexDirection="column"
+                alignContent="center"
+                padding={12}
+                borderRadius={12}
+                backgroundColor={"#d1d5db"}
+              >
+                <DefaultStyleProvider color="white">
+                  <Suspense fallback={<ActivityIndicator size="lg" />}>
+                    <DisplayNft nft={nft} />
+                  </Suspense>
+                </DefaultStyleProvider>
+                <Text>{nft.title}</Text>
+              </Container>
+            ))}
+          </Container>
+        );
+      })}
       <Container flexDirection="row" justifyContent="center" gapColumn={12}>
-        <Button size="md" platter>
-          <ArrowBigLeft />
-        </Button>
-        <Button size="md" platter>
-          <ArrowBigRight />
-        </Button>
-      </Container>
-    </Container>
-  );
-
-  return (
-    <Container
-      padding={16}
-      flexDirection="column"
-      gapRow={32}
-      marginY={12}
-      overflow="scroll"
-      maxHeight={400}
-      width={"100%"}
-    >
-      {chunkedNfts.map(({ nfts, id }, index) => (
-        <Container
-          key={id}
-          flexDirection="row"
-          gapColumn={12}
-          width={"100%"}
-          overflow="scroll"
+        <IconButton
+          size="md"
+          platter
+          // disabled={activeTab === 0}
+          onPointerMove={() => {
+            if (activeTab === 0) return;
+            console.log("next tab");
+            setActiveTab((curTab) => curTab - 1);
+          }}
         >
-          {/* <List flexGrow={1} flexDirection="row" gapColumn={12} width={"100%"}> */}
-
-          {nfts.map((nft) => (
-            <Container
-              key={nft.id}
-              flexDirection="column"
-              backgroundColor={"grey"}
-              padding={12}
-              backgroundOpacity={0.5}
-              borderRadius={12}
-              // overflow="hidden"
-            >
-              <DefaultStyleProvider color="white">
-                <Suspense fallback={<ActivityIndicator size="lg" />}>
-                  <DisplayNft nft={nft} />
-                </Suspense>
-              </DefaultStyleProvider>
-            </Container>
-          ))}
-        </Container>
-      ))}
+          <ArrowBigLeft />
+        </IconButton>
+        <IconButton
+          size="md"
+          platter
+          // selected={activeTab === 1}
+          disabled={activeTab === chunkedNfts.length - 1}
+          onPointerDown={() => {
+            if (activeTab === chunkedNfts.length - 1) return;
+            console.log("next tab");
+            setActiveTab((curTab) => curTab + 1);
+          }}
+        >
+          <ArrowBigRight />
+        </IconButton>
+      </Container>
     </Container>
   );
 }
