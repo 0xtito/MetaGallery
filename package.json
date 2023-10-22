@@ -17,6 +17,7 @@
     "@coconut-xr/natuerlich": "^0.0.38",
     "@coconut-xr/xinteraction": "^0.1.8",
     "@headlessui/react": "^1.7.17",
+    "@heroicons/react": "^2.0.18",
     "@next/eslint-plugin-next": "^13.5.4",
     "@pushprotocol/restapi": "^1.4.28",
     "@react-three/drei": "^9.86.3",

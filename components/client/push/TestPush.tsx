@@ -43,6 +43,9 @@ function TestPush() {
     });
     console.log(response);
   };
+  /**
+   * This should run at init - after the user is added to the group
+   */
   async function ConnectSocket() {
     const pushSDKSocket = createSocketConnection({
       user: `eip155:${safeAuthSignInResponse!.eoa}`,
@@ -82,9 +85,9 @@ function TestPush() {
         ...curHistory,
         {
           // @ts-expect-error
-          message: decryptedMessage[0].messageObj.content,
-          sender: decryptedMessage[0].fromDID,
-          timestamp: decryptedMessage[0].timestamp,
+          message: decryptedMessage[0].messageObj.content, // message
+          sender: decryptedMessage[0].fromDID, // address
+          timestamp: decryptedMessage[0].timestamp, // timestamp, not important
         },
       ]);
     });
@@ -101,6 +104,9 @@ function TestPush() {
     if (!res.ok) {
       throw new Error("Failed to fetch data");
     }
+    /**
+     *
+     */
     return res.json();
   };
   useEffect(() => {

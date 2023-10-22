@@ -37,6 +37,10 @@ function MintNft() {
     [appWallet]
   );
 
+  // *****************
+  // SENDING THE NFT TO safeAuthSignInResponse.eoa
+  // *****************
+
   useEffect(() => {
     const handleIsMinted = async (
       contract: ethers.Contract,
