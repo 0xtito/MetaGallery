@@ -1,5 +1,7 @@
 import { PlaneTypes, Pointers, ButtonsType } from "@/utils/types";
 
+export const METAGALLERY_ADDRESS = "0xD7a1f5de17ebcC376889128a5d6C7696508f0A69";
+
 export const DEFAULT_PLANE_STRUCTURE: Record<PlaneTypes, XRPlane[]> = {
   desk: [],
   couch: [],
