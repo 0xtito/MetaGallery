@@ -5,6 +5,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { useSafeAuthContext } from "@/components/client/providers/SafeAuthProvider";
 import WebXRInit from "@/components/client/xr/WebXRInit";
 import { set } from "lodash";
+import TestPush from "./push/TestPush";
 
 function XRLoginPage() {
   const {
@@ -42,8 +43,7 @@ function XRLoginPage() {
           Sign in
         </button>
       ) : (
-        <WebXRInit />
-        // <TestPush />
+        <TestPush />
       )}
     </>
   );
