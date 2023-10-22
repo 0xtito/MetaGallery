@@ -7,13 +7,16 @@ import {
   Object,
   Text,
   DefaultStyleProvider,
+  flexAPI,
 } from "@coconut-xr/koestlich";
 import {
   ListItem,
   List,
   ActivityIndicator,
   Glass,
+  Button,
 } from "@coconut-xr/apfel-kruemel";
+import { ArrowBigLeft, ArrowBigRight } from "@coconut-xr/lucide-koestlich";
 
 import { GrabPhysics } from "@/components/client/xr/physics";
 
@@ -22,13 +25,63 @@ import { nft } from "@/utils/types";
 import { DisplayNft } from "@/components/client/xr/interface";
 
 function InventoryContainer({ nfts }: { nfts: nft[] }) {
-  const chunkedNfts = useMemo(() => chunkArray(nfts, 3), [nfts]);
+  const chunkedNfts = useMemo(() => chunkArray(nfts, 2), [nfts]);
   // const id = useId();
 
   console.log("nfts", nfts);
   console.log("chunkedNfts", chunkedNfts);
 
-  // return nfts.map(({ title, url, additionalInfo }, index) => {
+  return (
+    <Container
+      // classes="dynamic-text-box"
+      flexDirection="column"
+      gapRow={16}
+      paddingY={16}
+      width={"100%"}
+      overflow={"hidden"}
+    >
+      {chunkedNfts.map(({ nfts, id }, index) => (
+        <Container
+          key={id}
+          flexDirection="row"
+          justifyContent="space-between"
+          gapColumn={12}
+        >
+          {nfts.map((nft) => (
+            <Container
+              key={nft.id}
+              flexGrow={1}
+              backgroundOpacity={0.5}
+              flexDirection="column"
+              alignContent="center"
+              // margin={10}
+              padding={12}
+              // border={0}
+              // border={}
+              borderRadius={12}
+              backgroundColor={"#d1d5db"}
+            >
+              <DefaultStyleProvider color="white">
+                <Suspense fallback={<ActivityIndicator size="lg" />}>
+                  <DisplayNft nft={nft} />
+                </Suspense>
+              </DefaultStyleProvider>
+              <Text>{nft.title}</Text>
+            </Container>
+          ))}
+        </Container>
+      ))}
+      <Container flexDirection="row" justifyContent="center" gapColumn={12}>
+        <Button size="md" platter>
+          <ArrowBigLeft />
+        </Button>
+        <Button size="md" platter>
+          <ArrowBigRight />
+        </Button>
+      </Container>
+    </Container>
+  );
+
   return (
     <Container
       padding={16}

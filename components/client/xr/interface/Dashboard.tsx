@@ -42,6 +42,43 @@ function Dashboard() {
         pixelSize={0.001}
         precision={1}
       >
+        <Container flexDirection="column" alignItems="center" gapRow={16}>
+          <TabBar defaultValue={1} flexGrow={1}>
+            <Glass borderRadius={32} padding={8}>
+              <TabBarItem value={1} icon={<Home />}>
+                <Text>Home</Text>
+              </TabBarItem>
+            </Glass>
+            <Glass borderRadius={32} padding={8}>
+              <TabBarItem value={2} icon={<ShoppingCart />}>
+                <Text>Market</Text>
+              </TabBarItem>
+            </Glass>
+            <Glass borderRadius={32} padding={8}>
+              <TabBarItem value={3} icon={<ShoppingCart />}>
+                <Text>Market</Text>
+              </TabBarItem>
+            </Glass>
+          </TabBar>
+        </Container>
+
+        <Glass borderRadius={32} padding={8}>
+          <Suspense fallback={<ActivityIndicator size="lg" />}>
+            <Inventory />
+          </Suspense>
+        </Glass>
+      </RootContainer>
+    </Grabbable>
+  );
+
+  return (
+    <Grabbable position={[-0.5, 1.5, -0.5]}>
+      <RootContainer
+        flexDirection="row"
+        gapColumn={32}
+        pixelSize={0.001}
+        precision={1}
+      >
         <Container flexDirection="row" alignItems={"center"}>
           <Glass borderRadius={32} padding={8} height={"32%"}>
             <TabBar defaultValue={1} flexGrow={1}>

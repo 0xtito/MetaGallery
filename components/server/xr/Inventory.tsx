@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 /**
  * Since this will be a server component, we will need to know
  * The user that is signed in, so that we can retrieve their
@@ -14,6 +14,7 @@ import { DEMO_NFT_URL } from "@/utils/constants";
 import { Suspense } from "react";
 
 import { nft } from "@/utils/types";
+import { useOpenseaStore } from "@/components/client/providers/OpenseaStoreProvider";
 
 // function getUsersNFTs() {
 // // Here we will fetch the users NFTs from the database
@@ -30,6 +31,13 @@ import { nft } from "@/utils/types";
 
 // will be a server component, but need to reorganize
 function Inventory() {
+  const { nfts: _nfts, storeReady } = useOpenseaStore();
+
+  useEffect(() => {
+    console.log("storeReady", storeReady);
+    console.log("nfts", _nfts);
+  }, [storeReady, _nfts]);
+
   // Here is where we will fetch all of the users NFTs
   // then we will pass them into the InventoryItems component
 
