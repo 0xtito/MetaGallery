@@ -60,14 +60,15 @@ export interface SpacialBoxProps {
   mass?: number;
 }
 export interface GrabProps {
+  id: string;
   children: React.ReactNode;
   handleGrab: (e: ThreeEvent<PointerEvent>) => void;
   handleRelease: (e: ThreeEvent<PointerEvent>, velocity?: Vector3) => void;
+  isDeletable?: boolean;
   isAnchorable?: boolean;
-  name?: string;
 }
 
-export interface nfts {
+export interface nft {
   title: string;
   url: string;
   id: string;
@@ -75,7 +76,7 @@ export interface nfts {
 }
 
 export interface chunkedNfts {
-  nfts: nfts[];
+  nfts: nft[];
   id: string;
 }
 
@@ -146,6 +147,11 @@ export type PointerState = {
 export type Pointers = {
   left: PointerState;
   right: PointerState;
+};
+
+export type CheckIfObjectHeldByPointerReturn = {
+  objectHeldByPointer: boolean;
+  handness: "left" | "right" | undefined;
 };
 
 export type ControllerStateContextValue = {
