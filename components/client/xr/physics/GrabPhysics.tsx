@@ -15,12 +15,17 @@ import { useControllerStateContext } from "@/components/client/providers/Control
 
 import type { ThreeEvent } from "@react-three/fiber";
 import type { RapierRigidBody } from "@react-three/rapier";
-import { RigidAndMeshRefs, GrabProps } from "@/utils/types";
+import {
+  RigidAndMeshRefs,
+  GrabProps,
+  CheckIfObjectHeldByPointerReturn,
+} from "@/utils/types";
 import { useTrackControllers } from "@/hooks";
+import useButtonListener from "@/hooks/useButtonListener";
 
 const GrabPhysics = forwardRef<RigidAndMeshRefs, GrabProps>(
   (
-    { children, handleGrab, handleRelease, name, isAnchorable = false },
+    { children, handleGrab, handleRelease, id, isAnchorable = false },
     rigidAndMeshRef
   ) => {
     const [isAnchored, setIsAnchored] = React.useState(false);
@@ -48,6 +53,7 @@ const GrabPhysics = forwardRef<RigidAndMeshRefs, GrabProps>(
     const maxEntries = useMemo(() => 5, []);
     const [leftController, rightController] = useTrackControllers();
     const { pointers } = useControllerStateContext();
+    const isXPressed = useButtonListener("x-button");
 
     const adjustPositionByThumbstick = useCallback(
       (handness: "left" | "right", e: ThreeEvent<PointerEvent>) => {
@@ -64,7 +70,7 @@ const GrabPhysics = forwardRef<RigidAndMeshRefs, GrabProps>(
           const rayDirection = new Vector3()
             .subVectors(e.point, controllerPosition)
             .normalize();
-          console.log("rayDirection", rayDirection);
+          // console.log("rayDirection", rayDirection);
           const offset = currentPointerState.z;
 
           const adjustedPosition = new Vector3().addVectors(
@@ -78,16 +84,39 @@ const GrabPhysics = forwardRef<RigidAndMeshRefs, GrabProps>(
       [leftController?.position, pointers, rightController?.position, rigidRef]
     );
 
-    const handleAnchor = useCallback(
-      (handedness?: "left" | "right", e?: ThreeEvent<PointerEvent>) => {
-        if (!rigidRef?.current) return;
-        rigidRef.current.setBodyType(1, true);
-        rigidRef.current.resetTorques(true);
-        rigidRef.current.resetForces(true);
-        setIsAnchored(true);
-      },
-      [rigidRef]
-    );
+    const checkIfObjectHeldByPointer: () => CheckIfObjectHeldByPointerReturn =
+      useCallback(() => {
+        if (
+          pointers.left.heldObject &&
+          pointers.left.heldObject.uuid == meshRef.current.uuid
+        ) {
+          return {
+            objectHeldByPointer: true,
+            handness: "left",
+          };
+        } else if (
+          pointers.right.heldObject &&
+          pointers.right.heldObject.uuid == meshRef.current.uuid
+        ) {
+          return {
+            objectHeldByPointer: true,
+            handness: "right",
+          };
+        } else {
+          return {
+            objectHeldByPointer: false,
+            handness: undefined,
+          };
+        }
+      }, [pointers, meshRef]);
+
+    const handleAnchor: () => void = useCallback(() => {
+      if (!rigidRef?.current) return;
+      rigidRef.current.setBodyType(1, true);
+      rigidRef.current.resetTorques(true);
+      rigidRef.current.resetForces(true);
+      setIsAnchored(true);
+    }, [rigidRef]);
 
     const handleUnanchor = useCallback(() => {
       if (!rigidRef?.current) return;
@@ -100,11 +129,12 @@ const GrabPhysics = forwardRef<RigidAndMeshRefs, GrabProps>(
 
     return (
       <mesh
-        name={name ?? ""}
+        name={id}
         ref={meshRef}
         onPointerDown={(e) => {
           if (
             meshRef.current != null &&
+            meshRef.current.visible &&
             downState.current == null &&
             isXIntersection(e) &&
             !isAnchored
@@ -145,6 +175,7 @@ const GrabPhysics = forwardRef<RigidAndMeshRefs, GrabProps>(
           }
         }}
         onPointerMove={(e) => {
+          if (isXPressed) return;
           if (
             isAnchored &&
             rightController &&
@@ -154,25 +185,19 @@ const GrabPhysics = forwardRef<RigidAndMeshRefs, GrabProps>(
             handleUnanchor();
             return;
           }
+
           if (
             meshRef.current == null ||
             downState.current == null ||
-            // e.pointerId != downState.current.pointerId ||
             !isXIntersection(e) ||
             isAnchored
           ) {
             return;
           }
-          console.log("rigidRef", rigidRef?.current);
-          let handness: "left" | "right" | undefined;
+          const { objectHeldByPointer, handness } =
+            checkIfObjectHeldByPointer();
 
-          if (pointers.left.heldObject?.uuid == meshRef.current.uuid) {
-            handness = "left";
-          } else if (pointers.right.heldObject?.uuid == meshRef.current.uuid) {
-            handness = "right";
-          }
-
-          if (!handness) return;
+          if (!handness || !objectHeldByPointer) return;
 
           if (
             rightController &&

@@ -98,7 +98,7 @@ function AdjustablePointerController({
     }
 
     if (newRayLength !== rayLength) {
-      console.log("new ray length so setting ray length");
+      // console.log("new ray length so setting ray length");
       setRayLength(newRayLength);
     }
   });
@@ -107,7 +107,7 @@ function AdjustablePointerController({
     (e: XRInputSourceEvent) => {
       // controller shake
       e.inputSource.gamepad?.hapticActuators.forEach((haptic) => {
-        console.log("haptic", haptic);
+        // console.log("haptic", haptic);
         haptic.playEffect("dual-rumble", {
           duration: 100,
           strongMagnitude: 0.5,

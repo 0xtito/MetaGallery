@@ -1,19 +1,35 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { Suspense, useEffect, useMemo, useRef } from "react";
 import { RapierRigidBody, RigidBody, vec3 } from "@react-three/rapier";
 import { ThreeEvent } from "@react-three/fiber";
-
-import type { Mesh, Vector3 } from "three";
+import { SkeletonUtils } from "three-stdlib";
+import { useGraph } from "@react-three/fiber";
+import { Mesh, Vector3 } from "three";
 import { GrabPhysics } from "@/components/client/xr/physics";
+import { useGLTF, useTexture } from "@react-three/drei";
 
-function TestBox(props: any) {
+function MetaBall(props: any) {
+  const [ready, setReady] = React.useState(false);
   const rigidRef = useRef<RapierRigidBody>(null);
   const ref = useRef<Mesh>(null);
   const rigidAndMeshRef = useRef({
     rigidRef: rigidRef,
     ref: ref,
   });
+
+  useGLTF.preload("/assets/demo/metagallery_ball.glb");
+  useTexture.preload("/assets/demo/logo.png");
+
+  const { scene } = useGLTF("/assets/demo/metagallery_ball.glb");
+  const texture = useTexture("/assets/demo/logo.png");
+
+  const clone = useMemo(() => SkeletonUtils.clone(scene), [scene]);
+
+  const { nodes } = useGraph(clone);
+
+  console.log("nodes", nodes);
+  console.log("texture", texture);
 
   const handleGrab = (e: ThreeEvent<PointerEvent>) => {
     if (rigidRef.current) {
@@ -37,11 +53,12 @@ function TestBox(props: any) {
   };
 
   return (
+    // <Suspense fallback={}>
     <RigidBody
       name={"testBox-physics"}
       ref={rigidRef}
-      colliders={"cuboid"}
-      position={props.position ?? [0, 0, 0]}
+      colliders={"ball"}
+      position={new Vector3(0.1, 1, -0.5)}
       canSleep={false}
       linearDamping={0.5}
       angularDamping={0.7}
@@ -54,11 +71,13 @@ function TestBox(props: any) {
         handleGrab={handleGrab}
         handleRelease={handleRelease}
       >
-        <boxGeometry args={[0.1, 0.1, 0.1]} />
-        <meshBasicMaterial color={props.color ?? "red"} />
+        {/* @ts-expect-error */}
+        <bufferGeometry {...nodes.Sphere.geometry} />
+        <meshBasicMaterial map={texture} map-flipY={false} />
       </GrabPhysics>
     </RigidBody>
+    // </Suspense>
   );
 }
 
-export default React.memo(TestBox);
+export default React.memo(MetaBall);

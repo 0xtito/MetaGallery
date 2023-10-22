@@ -24,6 +24,9 @@ import {
   TestBox,
 } from "@/components/client/xr/objects";
 import { Dashboard } from "@/components/client/xr/interface";
+import ActiveNftsProvider from "../providers/ActiveNftsProvider";
+import ActiveNftObjects from "./objects/ActiveNftObjects";
+import MetaBall from "./objects/MetaBall";
 
 const sessionOptions: XRSessionInit = {
   requiredFeatures: [
@@ -38,6 +41,8 @@ const sessionOptions: XRSessionInit = {
 function WebXRInit() {
   const enterAR = useEnterXR("immersive-ar", sessionOptions);
   const [startXR, setStartXR] = useState<boolean>(false);
+  // should fetch users nfts in their wallet, and then only when they are loaded
+  // in, display nft Objects
   const inputSources = useInputSources();
 
   const frameBufferScaling = useNativeFramebufferScaling();
@@ -56,21 +61,30 @@ function WebXRInit() {
         <NonImmersiveCamera position={[-0.5, 1.5, -0.4]} />
 
         <ControllerStateProvider>
-          {startXR && <Dashboard />}
-
           <Physics
             colliders={false}
-            gravity={[0, -0.5, 0]}
+            gravity={[0, -2, 0]}
             interpolate={false}
             timeStep={"vary"}
             debug
           >
+            <ActiveNftsProvider>
+              {startXR && (
+                <>
+                  <Dashboard />
+                  <ActiveNftObjects />
+                </>
+              )}
+            </ActiveNftsProvider>
+
             {/* Putting this here so the blocks only load in once the user starts AR */}
             {startXR && (
               <>
                 <TestBox color="blue" position={[0.1, 1, -0.3]} />
 
                 <TestBox position={[-0.1, 1, -0.3]} />
+
+                <MetaBall position={[0, 2, -0.3]} />
               </>
             )}
 

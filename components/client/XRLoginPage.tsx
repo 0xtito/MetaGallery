@@ -43,6 +43,7 @@ function XRLoginPage() {
         </button>
       ) : (
         <WebXRInit />
+        // <TestPush />
       )}
     </>
   );
