@@ -95,7 +95,7 @@ function ActiveNftsProvider({ children }: { children: React.ReactNode }) {
       console.log("removing nft with id: ", nftId);
 
       setActiveNfts((curNfts) =>
-        curNfts.filter(({ nft, spawnPosition }) => nft.id !== nftId)
+        curNfts.filter(({ nft, spawnPosition }) => nft.nftId !== nftId)
       );
     },
     [setActiveNfts]

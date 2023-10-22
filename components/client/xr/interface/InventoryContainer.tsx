@@ -28,7 +28,6 @@ import useButtonListener from "@/hooks/useButtonListener";
 function InventoryContainer({ nfts }: { nfts: nft[] }) {
   const [activeTab, setActiveTab] = React.useState(0);
   const chunkedNfts = useMemo(() => chunkArray(nfts, 4), [nfts]);
-  const isXPressed = useButtonListener("x-button");
 
   return (
     <Container
@@ -39,43 +38,38 @@ function InventoryContainer({ nfts }: { nfts: nft[] }) {
       width={"100%"}
       overflow={"hidden"}
     >
-      {chunkedNfts.map(({ nfts, id }, index) => {
-        if (index !== activeTab) return null;
-        return (
-          <Container
-            key={id}
-            flexDirection="row"
-            justifyContent="space-between"
-            gapColumn={12}
-          >
-            {nfts.map((nft) => (
-              <Container
-                key={nft.id}
-                flexGrow={1}
-                backgroundOpacity={0.5}
-                flexDirection="column"
-                alignContent="center"
-                padding={12}
-                borderRadius={12}
-                backgroundColor={"#d1d5db"}
-              >
-                <DefaultStyleProvider color="white">
-                  <Suspense fallback={<ActivityIndicator size="lg" />}>
-                    <DisplayNft nft={nft} />
-                  </Suspense>
-                </DefaultStyleProvider>
-                <Text>{nft.title}</Text>
-              </Container>
-            ))}
-          </Container>
-        );
-      })}
+      {chunkedNfts.map(({ nfts, id }, index) => (
+        <Container
+          key={id}
+          flexDirection="row"
+          justifyContent="space-between"
+          gapColumn={12}
+        >
+          {nfts.map((nft) => (
+            <Container
+              key={`${nft.nftId}+${nft.name}`}
+              flexGrow={1}
+              backgroundOpacity={0.5}
+              flexDirection="column"
+              alignContent="center"
+              padding={12}
+              borderRadius={12}
+              backgroundColor={"#d1d5db"}
+            >
+              <DefaultStyleProvider color="white">
+                <DisplayNft nft={nft} />
+              </DefaultStyleProvider>
+              <Text>{nft.nftId}</Text>
+            </Container>
+          ))}
+        </Container>
+      ))}
       <Container flexDirection="row" justifyContent="center" gapColumn={12}>
         <IconButton
           size="md"
           platter
           // disabled={activeTab === 0}
-          onPointerMove={() => {
+          onPointerDown={() => {
             if (activeTab === 0) return;
             console.log("next tab");
             setActiveTab((curTab) => curTab - 1);
@@ -87,9 +81,9 @@ function InventoryContainer({ nfts }: { nfts: nft[] }) {
           size="md"
           platter
           // selected={activeTab === 1}
-          disabled={activeTab === chunkedNfts.length - 1}
+          // disabled={activeTab === chunkedNfts.length - 1}
           onPointerDown={() => {
-            if (activeTab === chunkedNfts.length - 1) return;
+            // if (activeTab === chunkedNfts.length - 1) return;
             console.log("next tab");
             setActiveTab((curTab) => curTab + 1);
           }}
@@ -101,4 +95,4 @@ function InventoryContainer({ nfts }: { nfts: nft[] }) {
   );
 }
 
-export default React.memo(InventoryContainer);
+export default InventoryContainer;

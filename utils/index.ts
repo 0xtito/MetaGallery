@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { nfts, chunkedNfts } from "@/utils/types";
+import { nft, chunkedNfts } from "@/utils/types";
 
 export function wrapText(text: string, maxLength: number): string {
   const words = text.split(" ");
@@ -23,20 +23,20 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function chunkArray(array: nfts[], chunkSize: number): chunkedNfts[] {
+export function chunkArray(array: nft[], chunkSize: number): chunkedNfts[] {
   const results: chunkedNfts[] = [];
   while (array.length) {
     if (array.length < chunkSize) {
       const chunk = array.splice(0, array.length);
       results.push({
         nfts: chunk,
-        id: chunk.reduce((acc, { id }) => (acc += id), ""),
+        id: chunk.reduce((acc, { nftId }) => (acc += nftId), ""),
       });
     } else {
       const chunk = array.splice(0, chunkSize);
       results.push({
         nfts: chunk,
-        id: chunk.reduce((acc, { id }) => (acc += `${id}-`), ""),
+        id: chunk.reduce((acc, { nftId }) => (acc += `${nftId}-`), ""),
       });
     }
   }

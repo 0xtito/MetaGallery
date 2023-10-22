@@ -45,11 +45,11 @@ function Island({
 
   const handleDoorClick = () => {
     console.log("Door clicked");
-    // let sendToQuestUrl = new URL("https://oculus.com/open_url/");
-    // let linkUrl = "http://localhost:3000/xr";
-    // sendToQuestUrl.searchParams.set("url", linkUrl);
-    // router.push(sendToQuestUrl.toString());
-    router.push("/xr");
+    let sendToQuestUrl = new URL("https://oculus.com/open_url/");
+    let linkUrl = "http://localhost:3000/xr";
+    sendToQuestUrl.searchParams.set("url", linkUrl);
+    router.push(sendToQuestUrl.toString());
+    // router.push("/xr");
   };
 
   // @ts-ignore

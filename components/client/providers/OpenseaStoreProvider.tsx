@@ -11,6 +11,8 @@ import { useSafeAuthContext } from "@/components/client/providers/SafeAuthProvid
 import { OpenSeaSDK, Chain, NFT } from "opensea-js";
 import { Web3Provider } from "@ethersproject/providers";
 
+import * as ethers from "ethers";
+
 interface StoreNFT {
   collection: string;
   name: string;
@@ -29,6 +31,9 @@ const OpenseaStoreContext = React.createContext<OpenseaStore>({
   storeReady: false,
 });
 
+const api = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY!;
+const priv = process.env.NEXT_PUBLIC_PRIVATE_KEY!;
+
 export const useOpenseaStore = () => {
   const context = React.useContext(OpenseaStoreContext);
   if (!context) {
@@ -45,14 +50,20 @@ function OpenseaStoreProvider({ children }: { children: React.ReactNode }) {
   const [storeReady, setStoreReady] = useState<boolean>(false);
   let timer: NodeJS.Timeout;
 
+  const PROVIDER = new ethers.providers.AlchemyProvider("matic", api);
+
+  const TEST_WALLET = new ethers.Wallet(priv, PROVIDER);
+
   useEffect(() => {
-    const getNFTs = async (_web3Provider: Web3Provider) => {
-      const openseaSDK = new OpenSeaSDK(_web3Provider, {
+    const getNFTs = async (_web3Provider?: Web3Provider) => {
+      // const openseaSDK = new OpenSeaSDK(_web3Provider, {
+      const openseaSDK = new OpenSeaSDK(PROVIDER, {
         chain: Chain.Polygon,
         apiKey: process.env.NEXT_PUBLIC_OPENSEA_API_KEY!,
         // @ts-expect-error
         logger: (arg: string) => {},
-        wallet: web3Provider?.getSigner(),
+        // wallet: web3Provider?.getSigner(),
+        wallet: TEST_WALLET,
       });
       // using these contracts to demo
       const nftContractAddresses = [
@@ -61,14 +72,27 @@ function OpenseaStoreProvider({ children }: { children: React.ReactNode }) {
         "0xdb46d1dc155634fbc732f92e853b10b288ad5a1d", // Lens Protocol Profiles
       ];
 
-      let fetchedNfts: NFT[] = [];
+      let fetchedNfts: StoreNFT[] = [];
       for (const contract of nftContractAddresses) {
         const res = await openseaSDK.api.getNFTsByContract(
           Chain.Polygon,
           contract,
           4
         );
-        fetchedNfts = [...fetchedNfts, ...res.nfts];
+        // fetchedNfts = [...fetchedNfts, ...res.nfts];
+
+        fetchedNfts = [
+          ...fetchedNfts,
+          ...res.nfts.map((nft: NFT) => {
+            return {
+              collection: nft.collection,
+              name: nft.name,
+              nftId: nft.identifier,
+              imageUrl: nft.image_url,
+              price: 0,
+            };
+          }),
+        ];
       }
 
       let storeNfts: StoreNFT[] = [];
@@ -93,21 +117,28 @@ function OpenseaStoreProvider({ children }: { children: React.ReactNode }) {
           console.log(err);
         }
       }
-      setNfts(storeNfts);
+      console.log(fetchedNfts);
+
+      setNfts(fetchedNfts);
       setStoreReady(true);
     };
-    if (web3Provider && !storeReady) {
-      getNFTs(web3Provider);
+    // if (web3Provider && !storeReady) {
+    //   getNFTs(web3Provider);
+    // }
+    if (!storeReady) {
+      // testing
+      getNFTs();
     }
   }, [web3Provider, storeReady]);
 
-  const values = useMemo(
-    () => ({
+  const values = useMemo(() => {
+    console.log(nfts);
+
+    return {
       nfts,
       storeReady,
-    }),
-    [nfts, storeReady]
-  );
+    };
+  }, [nfts, storeReady]);
 
   return (
     <OpenseaStoreContext.Provider value={values}>

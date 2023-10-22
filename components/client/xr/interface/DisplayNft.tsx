@@ -42,7 +42,7 @@ function DisplayNft({ nft, isOwned = true }: DisplayNftProps) {
 
       if (isActive && isBPressed && handleRemoveNft) {
         console.log("removing nft: ", nft);
-        handleRemoveNft(nft.id);
+        handleRemoveNft(nft.name);
         setIsActive(false);
       }
 
@@ -57,24 +57,25 @@ function DisplayNft({ nft, isOwned = true }: DisplayNftProps) {
     [isActive, isAPressed, isBPressed, handleSetNft, handleRemoveNft, nft]
   );
 
+  console.log(nft);
+
   return (
-    <>
+    <Suspense>
       {/* eslint-disable-next-line */}
       <Image
         onPointerMove={handleClick}
         index={0}
         aspectRatio={1}
-        width={"auto"}
-        height={"auto"}
-        url={nft.url}
+        width={200}
+        height={200}
+        url={nft.imageUrl}
         borderRadius={3}
-        // onPointerDown={handleClick}
       />
       <Text fontSize={12} index={1} marginTop={8}>
-        {nft.title}
+        {nft.name}
       </Text>
-    </>
+    </Suspense>
   );
 }
 
-export default React.memo(DisplayNft);
+export default DisplayNft;

@@ -68,11 +68,19 @@ export interface GrabProps {
   isAnchorable?: boolean;
 }
 
+// export interface nft {
+//   title: string;
+//   url: string;
+//   id: string;
+//   additionalInfo?: string;
+// }
+
 export interface nft {
-  title: string;
-  url: string;
-  id: string;
-  additionalInfo?: string;
+  collection: string;
+  name: string;
+  nftId: string;
+  imageUrl: string;
+  price?: number;
 }
 
 export interface chunkedNfts {
@@ -174,4 +182,12 @@ export interface RigidAndMeshRefs {
       Object3DEventMap
     >
   >;
+}
+
+interface StoreNFT {
+  collection: string;
+  name: string;
+  nftId: string;
+  imageUrl: string;
+  price: number;
 }

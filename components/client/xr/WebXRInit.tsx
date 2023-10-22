@@ -18,7 +18,6 @@ import BuildRoom from "@/components/client/xr/BuildRoom";
 import {
   MeshesAndPlanesProvider,
   ControllerStateProvider,
-  OpenseaStoreProvider,
 } from "@/components/client/providers";
 import {
   AdjustablePointerController,
@@ -67,18 +66,16 @@ function WebXRInit() {
             gravity={[0, -5, 0]}
             interpolate={false}
             timeStep={"vary"}
-            debug
+            // debug
           >
-            <OpenseaStoreProvider>
-              <ActiveNftsProvider>
-                {startXR && (
-                  <>
-                    <Dashboard />
-                    <ActiveNftObjects />
-                  </>
-                )}
-              </ActiveNftsProvider>
-            </OpenseaStoreProvider>
+            <ActiveNftsProvider>
+              {startXR && (
+                <>
+                  <Dashboard />
+                  <ActiveNftObjects />
+                </>
+              )}
+            </ActiveNftsProvider>
 
             {/* Putting this here so the blocks only load in once the user starts AR */}
             {startXR && (

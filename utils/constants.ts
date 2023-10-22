@@ -1,4 +1,4 @@
-import { PlaneTypes, Pointers, ButtonsType } from "@/utils/types";
+import { PlaneTypes, Pointers, ButtonsType, nft } from "@/utils/types";
 
 export const METAGALLERY_ADDRESS = "0xD7a1f5de17ebcC376889128a5d6C7696508f0A69";
 
@@ -199,3 +199,85 @@ export const three_colors = {
   yellow: "#ffff00",
   yellowgreen: "#9acd32",
 };
+
+// https://i.seadn.io/gcs/files/feb1cb3253570179744438bb08eb569c.jpg?auto=format&dpr
+export const DEMO_NFTS: nft[] = [
+  {
+    name: "Lonely Nights",
+    imageUrl: "/assets/demo/lonely_nights.jpeg",
+    nftId: "4325421",
+    collection: "Eponym by ART AI",
+  },
+  {
+    collection: "gwei-guzzlers",
+    name: "GWEI GUZZLERS #597",
+    nftId: "597",
+    imageUrl:
+      "https://i.seadn.io/s/raw/files/350166d11e15e80b35bf6a4cc586d69b.png?w=500&auto=format",
+    price: 100000000000000000,
+  },
+  {
+    collection: "gwei-guzzlers",
+    name: "GWEI GUZZLERS #600",
+    nftId: "600",
+    imageUrl:
+      "https://i.seadn.io/s/raw/files/7b33b43025c2f3e0f7f9a8c7cfb488a0.png?w=500&auto=format",
+    price: 100000000000000000,
+  },
+  {
+    collection: "gwei-guzzlers",
+    name: "GWEI GUZZLERS #596",
+    nftId: "596",
+    imageUrl:
+      "https://i.seadn.io/s/raw/files/07190e78c6ee5fe5eeba4b785bd449d7.png?w=500&auto=format",
+    price: 100000000000000000,
+  },
+  {
+    collection: "gwei-guzzlers",
+    name: "GWEI GUZZLERS #595",
+    nftId: "595",
+    imageUrl:
+      "https://i.seadn.io/s/raw/files/914b08cf17fa2545826ffbce60b27fb2.png?w=500&auto=format",
+    price: 10000000000000000000,
+  },
+  {
+    collection: "gwei-guzzlers",
+    name: "GWEI GUZZLERS #594",
+    nftId: "594",
+    imageUrl:
+      "https://i.seadn.io/s/raw/files/8ef09adae6fb38fa29767714b4698206.png?w=500&auto=format",
+    price: 100000000000000000,
+  },
+  {
+    collection: "robotos-genesis",
+    name: "Vroomba Kittyboto",
+    nftId: "14",
+    imageUrl:
+      "https://i.seadn.io/gae/cK9ECdn7CxZZkQVLnFpGOgK7n_cGcbz1USutKfVQUKoSvxMUVTPUrRRoVyCWO92DxQDVBo8rXboyBrrdneN7t5jLcf7ksmQR6ENmRh0?w=500&auto=format",
+    price: 40000000000000000,
+  },
+  {
+    collection: "robotos-genesis",
+    name: "Kitty Camboto",
+    nftId: "13",
+    imageUrl:
+      "https://i.seadn.io/gae/bkOwNesGyXyyNqxoFIIq5HsDYm_BGo8ec3xMIQalSxR6vlgaQjBTht_MHAUl6I9G5nCPrREy0-Llr7d-A6ZmMFe5vRqQB-_0ae_w?w=500&auto=format",
+    price: 60000000000000000,
+  },
+  {
+    collection: "robotos-genesis",
+    name: "Skate Kittyboto",
+    nftId: "12",
+    imageUrl:
+      "https://i.seadn.io/gae/eWxqtlMO8JWFQYeHef2dnIlOuvMpNfy7ZOB0yj_I4cN74dWB609_ZMknVNqCFyRqCHUqJbhev5zdeilD8DwHSf1UBlGggOdKGVGK5w?w=500&auto=format",
+    price: 30000000000000000,
+  },
+  {
+    collection: "robotos-genesis",
+    name: "Wheels Kittyboto",
+    nftId: "10",
+    imageUrl:
+      "https://i.seadn.io/gae/uU27yIQydI33Pv5A63zy0oNDr6klZADm9SXrISo9RczkwCzpalnrDW96-rZp-yO0nPcjGfq0AVyufQAn0QMJlZIzUxT0dLQCn3H_?w=500&auto=format",
+    price: 80000000000000000,
+  },
+];
