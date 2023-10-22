@@ -97,6 +97,20 @@ function TestPush() {
     });
   }
 
+  const addUserToGroup = async () => {
+    const headers = {
+      "Content-Type": "application/json"
+    }
+    const res = await fetch(`http://localhost:3000/api/push/addUser/${safeAuthSignInResponse!.eoa}`, { method: "POST", headers: headers, body: null })
+    console.log(res);
+   
+    if (!res.ok) {
+      throw new Error('Failed to fetch data')
+    }
+    return res.json()
+  }
+
+
   useEffect(() => {
     console.log('history:', history);
   }, [history]);
@@ -107,13 +121,19 @@ function TestPush() {
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         onClick={ConnectSocket}
       >
-        Connect Socket
+        Connect socket
       </button>
       <button
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         onClick={sendMessage}
       >
-        Send Message
+        Send message
+      </button>
+      <button
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        onClick={addUserToGroup}
+      >
+        Add user to group
       </button>
     </>
   )
