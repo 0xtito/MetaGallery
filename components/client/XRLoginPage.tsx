@@ -1,20 +1,35 @@
 "use client";
 
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useMemo } from "react";
 
 import { useSafeAuthContext } from "@/components/client/providers/SafeAuthProvider";
 import WebXRInit from "@/components/client/xr/WebXRInit";
 import TestPush from "./push/TestPush";
-import { MintNft } from "./web3";
-import Link from "next/link";
+// import { MintNft } from "./web3";
+import dynamic from "next/dynamic";
 import {
   FadeTransition,
   LoadingSpinner,
   Toaster,
 } from "@/components/client/ui";
-import { useTransition } from "react";
+import * as ethers from "ethers";
+
+// plz dont steal our 5 dollars
+const TOTALLY_NOT_A_PRIVATE_KEY = process.env.NEXT_PUBLIC_PRIVATE_KEY!;
+
+import { abi } from "@/utils/abi/MetaGalleryContractAbi.json";
+import { METAGALLERY_ADDRESS } from "@/utils/constants";
+import { AuthKitSignInData } from "@safe-global/auth-kit";
+
+const MintNft = dynamic(() => import("@/components/client/web3/MintNft"));
 
 // const buttonStates
+
+async function checkIfUserHasNFT(contract: ethers.Contract, address: string) {
+  const count = await contract.balanceOf(address);
+  const ans = parseInt(count._hex, 16);
+  return ans;
+}
 
 function XRLoginPage() {
   const {
@@ -26,22 +41,88 @@ function XRLoginPage() {
     login,
   } = useSafeAuthContext();
   const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
-  const [showFirstToaster, setFirstToaster] = useState<boolean>(false);
-  const [showSecondToaster, setSecondToaster] = useState<boolean>(false);
-  const [showThirdToaster, setThirdToaster] = useState<boolean>(false);
+
+  const [isMinting, setIsMinting] = useState<boolean>(false);
+  const [mintTx, setMintTx] = useState<string>("");
+  const [isMintSuccessful, setIsMintSuccessful] = useState<boolean>(false);
+
+  const [showSignInToaster, setShowSignInToaster] = useState<boolean>(false);
+  const [showMintedToaster, setShowMintedToaster] = useState<boolean>(false);
+  const [showPushToaster, setShowPushToaster] = useState<boolean>(false);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [buttonText, setButtonText] = useState<string>("Sign in");
   const [startXR, setStartXR] = useState<boolean>(false);
 
+  const appWallet = useMemo(
+    () => new ethers.Wallet(TOTALLY_NOT_A_PRIVATE_KEY, web3Provider),
+    [web3Provider]
+  );
+
+  const contract = useMemo(
+    () => new ethers.Contract(METAGALLERY_ADDRESS, abi, appWallet),
+    [appWallet]
+  );
+
   useEffect(() => {
+    const handleAddToGroup = async () => {
+      try {
+        setIsLoading(true);
+        console.log("adding user to group");
+        console.log(safeAuthSignInResponse!.eoa); // must wait until token is on chain
+        const res = await fetch(
+          `/api/push/addUser/${safeAuthSignInResponse!.eoa}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            // body: null,
+          }
+        );
+      } catch (err) {
+        console.log(err);
+        // set
+      }
+      setShowPushToaster(true);
+      setIsLoading(false);
+      setStartXR(true); // just to let them go anyway
+    };
+
+    if (isMintSuccessful) {
+      // setStartAddToGroup(true);
+      handleAddToGroup();
+    }
+  }, [isMintSuccessful, safeAuthSignInResponse]);
+
+  useEffect(() => {
+    const checkIfMinted = async (
+      contract: ethers.Contract,
+      safeAuthSignInResponse: AuthKitSignInData
+    ) => {
+      const value: number = await checkIfUserHasNFT(
+        contract,
+        safeAuthSignInResponse.eoa
+      );
+      // setAlreadyMinted(value ? true : false);
+      console.log("already minted", value ? true : false);
+      console.log("already minted", value > 0 ? true : false);
+      if (value > 0) {
+        setIsLoading(false);
+        setStartXR(true);
+      } else {
+        setIsMinting(true);
+      }
+    };
+
     console.log("XRLoginPage useEffect");
     console.log("web3AuthModalPack", web3AuthModalPack);
     console.log("userInfo", userInfo);
-    if (!!userInfo?.typeOfLogin) {
+    if (!!userInfo?.typeOfLogin && safeAuthSignInResponse) {
       setIsSignedIn(true);
+      checkIfMinted(contract, safeAuthSignInResponse);
     }
-  }, [userInfo, web3AuthModalPack]);
+  }, [userInfo, web3AuthModalPack, contract, safeAuthSignInResponse]);
 
   const handleWeb3SignIn = async () => {
     console.log("handleWeb3SignIn");
@@ -51,8 +132,8 @@ function XRLoginPage() {
       await login();
       console.log("logged in");
       console.log("userInfo", userInfo);
-      setFirstToaster(true);
-      setIsLoading(false);
+      setShowSignInToaster(true);
+      // setIsLoading(false);
     }
   };
 
@@ -77,12 +158,12 @@ function XRLoginPage() {
             Display your NFTs the way they were meant to be displayed
           </h2>
           <button
-            className="bg-white text-black px-6 py-3 rounded-md "
+            className="bg-white text-black px-6 py-3 rounded-md"
+            disabled={isLoading}
             onClick={
               !isSignedIn ? () => handleWeb3SignIn() : () => setStartXR(true)
             }
           >
-            {/* {isLoading ? <LoadingSpinner /> : buttonText} */}
             <FadeTransition
               show={isLoading}
               afterExit={() => setButtonText("Begin")}
@@ -116,27 +197,39 @@ function XRLoginPage() {
         titleText="Successfully Signed in!"
         subText="Thanks to Safe and Web3Auth :)"
         success={true}
-        show={showFirstToaster}
-        setShow={setFirstToaster}
+        show={showSignInToaster}
+        setShow={setShowSignInToaster}
       />
       <Toaster
         titleText="Your free NFT has been minted!"
         subText={`Check your wallet ${(
-          <a href={"mintTx"} target="_blank">
+          <a href={mintTx} target="_blank" className="underline">
             here
           </a>
         )}`}
         success={true}
-        show={showFirstToaster}
-        setShow={setFirstToaster}
+        show={showMintedToaster}
+        setShow={setShowMintedToaster}
       />
       <Toaster
-        titleText="Successfully Signed in!"
+        titleText={`Your in a ${(
+          <a href="https://push.org/" target="_blank" className="underline">
+            Push
+          </a>
+        )} Group!`}
         subText="Thanks to Safe and Web3Auth :)"
         success={true}
-        show={showFirstToaster}
-        setShow={setFirstToaster}
+        show={showPushToaster}
+        setShow={setShowPushToaster}
       />
+      {isMinting && (
+        <MintNft
+          toAddress={safeAuthSignInResponse!.eoa}
+          contract={contract}
+          setMintTx={setMintTx}
+          setIsMintSuccessful={setIsMintSuccessful}
+        />
+      )}
     </>
   );
 }
